@@ -1,286 +1,147 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <title>SCL-90 自测（离线版）</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <style>
-    :root { --fg:#222; --muted:#666; --bg:#fff; --accent:#2563eb; --warn:#b45309; --danger:#b91c1c; --ok:#059669; }
-    html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","PingFang SC","Microsoft Yahei",sans-serif; }
-    header { padding:16px 16px 8px; border-bottom:1px solid #eee; }
-    header h1 { margin:0 0 8px; font-size:18px; }
-    header p { margin:4px 0; color:var(--muted); }
-    .container { max-width:920px; margin:0 auto; padding:12px 16px 80px; }
-    .toolbar { position:sticky; top:0; background:rgba(255,255,255,0.96); backdrop-filter:saturate(120%) blur(6px); border-bottom:1px solid #eee; padding:8px 16px; display:flex; gap:12px; align-items:center; z-index:5; }
-    .progress { color:var(--muted); font-size:13px; }
-    .btn { appearance:none; border:1px solid #ddd; background:#f8fafc; color:#111827; padding:8px 12px; border-radius:8px; cursor:pointer; }
-    .btn.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
-    .btn:disabled { opacity:.6; cursor:not-allowed; }
-    .error { color:var(--danger); font-size:13px; }
-    .notice { padding:10px 12px; border-radius:8px; background:#fff7ed; border:1px solid #fed7aa; color:#7c2d12; margin:12px 0; }
-    .crisis { padding:12px; border-radius:8px; background:#fef2f2; border:1px solid #fecaca; color:var(--danger); margin:12px 0; }
-    .q { padding:12px; border-bottom:1px solid #f1f5f9; }
-    .q h3 { margin:0 0 8px; font-size:14px; }
-    .opts { display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:8px; }
-    .opt { border:1px solid #e5e7eb; border-radius:8px; padding:8px; display:flex; align-items:center; gap:8px; cursor:pointer; }
-    .opt input { width:16px; height:16px; }
-    .legend { display:flex; gap:8px; flex-wrap:wrap; color:var(--muted); font-size:12px; }
-    .results { margin-top:16px; padding:12px; border:1px solid #e5e7eb; border-radius:10px; }
-    .metrics { display:flex; flex-wrap:wrap; gap:10px; margin:8px 0 4px; }
-    .metric { flex:1 1 160px; border:1px solid #e5e7eb; border-radius:10px; padding:8px 10px; }
-    .metric h4 { margin:0 0 6px; font-size:13px; color:#374151; }
-    .metric .val { font-size:18px; font-weight:600; }
-    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; margin-left:8px; }
-    .pill.ok { background:#ecfdf5; color:var(--ok); border:1px solid #a7f3d0; }
-    .pill.warn { background:#fffbeb; color:var(--warn); border:1px solid #fde68a; }
-    .pill.danger { background:#fef2f2; color:var(--danger); border:1px solid #fecaca; }
-    .factor { border-top:1px dashed #e5e7eb; padding-top:10px; margin-top:10px; }
-    .factor h4 { margin:0 0 6px; font-size:14px; }
-    .factor p { margin:4px 0; }
-    footer { padding:16px; color:var(--muted); font-size:12px; border-top:1px solid #eee; }
-    @media print {
-      .toolbar, .error, .legend, .btn, header p.disclaimer, .q { display:none !important; }
-      .results { border:none; }
-      body { background:#fff; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCL-90 症状自评量表</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .instruction { background: #f8f9fa; padding: 20px 30px; border-left: 4px solid #667eea; margin: 20px; border-radius: 5px; }
+        .instruction h3 { color: #333; margin-bottom: 10px; }
+        .instruction p { color: #666; line-height: 1.6; margin-bottom: 8px; }
+        .rating-guide { display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 15px; gap: 10px; }
+        .rating-item { background: white; padding: 8px 15px; border-radius: 20px; font-size: 13px; color: #667eea; font-weight: bold; }
+        .test-area { padding: 20px 30px; }
+        .question { background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 8px; transition: all 0.3s; }
+        .question:hover { background: #e9ecef; transform: translateX(5px); }
+        .question-text { font-weight: bold; color: #333; margin-bottom: 10px; font-size: 15px; }
+        .question-number { display: inline-block; background: #667eea; color: white; width: 30px; height: 30px; line-height: 30px; text-align: center; border-radius: 50%; margin-right: 10px; font-size: 14px; }
+        .options { display: flex; gap: 15px; flex-wrap: wrap; margin-left: 40px; }
+        .option-label { display: flex; align-items: center; cursor: pointer; padding: 8px 12px; border-radius: 5px; transition: all 0.3s; background: white; }
+        .option-label:hover { background: #667eea; color: white; }
+        .option-label input[type="radio"] { margin-right: 5px; cursor: pointer; }
+        .submit-area { padding: 30px; text-align: center; }
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 15px 40px; font-size: 16px; border-radius: 25px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+        .btn:active { transform: translateY(0); }
+        .result-area { display: none; padding: 30px; background: #f8f9fa; }
+        .result-area.show { display: block; }
+        .result-summary { background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+        .result-summary h2 { color: #667eea; margin-bottom: 20px; text-align: center; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .summary-item { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; text-align: center; }
+        .summary-item .label { font-size: 13px; opacity: 0.9; margin-bottom: 5px; }
+        .summary-item .value { font-size: 24px; font-weight: bold; }
+        .factor-table { background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; overflow-x: auto; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+        .factor-table h3 { color: #667eea; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e9ecef; }
+        th { background: #667eea; color: white; font-weight: bold; }
+        tr:hover { background: #f8f9fa; }
+        .level-normal { color: #28a745; font-weight: bold; }
+        .level-mild { color: #ffc107; font-weight: bold; }
+        .level-moderate { color: #ff9800; font-weight: bold; }
+        .level-severe { color: #f44336; font-weight: bold; }
+        .chart-container { background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+        .chart-container h3 { color: #667eea; margin-bottom: 15px; text-align: center; }
+        #radarChart { display: block; margin: 0 auto; max-width: 100%; }
+        .interpretation { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
+        .interpretation h3 { color: #667eea; margin-bottom: 15px; }
+        .interpretation p { color: #666; line-height: 1.8; margin-bottom: 10px; }
+        .interpretation ul { margin-left: 20px; color: #666; line-height: 1.8; }
+        .factor-analysis { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
+        .factor-analysis h3 { color: #667eea; margin-bottom: 15px; }
+        .factor-item { background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 8px; border-left: 4px solid #667eea; }
+        .factor-item h4 { color: #333; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .factor-item .score-badge { padding: 4px 12px; border-radius: 15px; font-size: 13px; font-weight: bold; }
+        .factor-item p { color: #666; line-height: 1.6; margin-bottom: 8px; }
+        .factor-item ul { margin-left: 20px; color: #666; line-height: 1.6; }
+        .error-message { background: #f44336; color: white; padding: 15px; border-radius: 5px; margin: 20px 30px; display: none; text-align: center; }
+        .error-message.show { display: block; }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 22px; }
+            .options { margin-left: 0; }
+            .summary-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>SCL‑90 自测（单页离线版）</h1>
-    <p>说明：过去一周内，以下问题给你带来的困扰程度如何？请选择最符合的一项。</p>
-    <p class="disclaimer">免责声明：本工具仅用于自评与科普，不构成诊断或治疗建议。如遇紧急风险，请立即联系当地紧急服务或专业机构。</p>
-  </header>
+    <div class="container">
+        <div class="header">
+            <h1>SCL-90 症状自评量表</h1>
+            <p>Symptom Checklist 90</p>
+        </div>
+        <div class="instruction" id="instruction">
+            <h3>📋 填写说明</h3>
+            <p>下面列出了有些人可能有的病痛或问题，请仔细阅读每一条，然后根据<strong>最近一星期</strong>以来（包括今天）您的实际感觉，选择最符合的答案。</p>
+            <p><strong>评分标准：</strong></p>
+            <div class="rating-guide">
+                <span class="rating-item">1 - 没有</span>
+                <span class="rating-item">2 - 很轻</span>
+                <span class="rating-item">3 - 中等</span>
+                <span class="rating-item">4 - 偏重</span>
+                <span class="rating-item">5 - 严重</span>
+            </div>
+        </div>
+        <div class="error-message" id="errorMessage">请完成所有题目后再提交！</div>
+        <form id="scl90Form">
+            <div class="test-area" id="testArea"></div>
+            <div class="submit-area"><button type="submit" class="btn">提交测试</button></div>
+        </form>
+        <div class="result-area" id="resultArea">
+            <div class="result-summary">
+                <h2>📊 测试结果总览</h2>
+                <div class="summary-grid" id="summaryGrid"></div>
+            </div>
+            <div class="factor-table">
+                <h3>📈 各因子得分详情</h3>
+                <table><thead><tr><th>因子名称</th><th>因子分</th><th>因子均分</th><th>程度评价</th></tr></thead><tbody id="factorTableBody"></tbody></table>
+            </div>
+            <div class="chart-container">
+                <h3>🎯 因子得分雷达图</h3>
+                <canvas id="radarChart" width="500" height="500"></canvas>
+            </div>
+            <!-- 交换位置：各因子详细分析现在在总体评价之前 -->
+            <div class="factor-analysis">
+                <h3>📋 各因子详细分析</h3>
+                <div id="factorAnalysisText"></div>
+            </div>
+            <div class="interpretation">
+                <h3>💡 总体评价</h3>
+                <div id="interpretationText"></div>
+            </div>
+            <div class="submit-area"><button class="btn" onclick="location.reload()">重新测试</button></div>
+        </div>
+    </div>
+    <script>
+// 这里保持原有的JavaScript代码不变
+const questions=["头痛","神经过敏，心中不踏实","头脑中有不必要的想法或字句盘旋","头昏或昏倒","对异性的兴趣减退","对旁人责备求全","感到别人能控制您的思想","责怪别人制造麻烦","忘性大","担心自己的衣饰整齐及仪态的端正","容易烦恼和激动","胸痛","害怕空旷的场所或街道","感到自己的精力下降，活动减慢","想结束自己的生命","听到旁人听不到的声音","发抖","感到大多数人都不可信任","胃口不好","容易哭泣","同异性相处时感到害羞不自在","感到受骗，中了圈套或有人想抓您","无缘无故地突然感到害怕","自己不能控制地大发脾气","怕单独出门","经常责怪自己","腰痛","感到难以完成任务","感到孤独","感到苦闷","过分担忧","对事物不感兴趣","感到害怕","您的感情容易受到伤害","旁人能知道您的私下想法","感到别人不理解您、不同情您","感到人们对您不友好，不喜欢您","做事必须做得很慢以保证做得正确","心跳得很厉害","恶心或胃部不舒服","感到比不上他人","肌肉酸痛","感到有人在监视您、谈论您","难以入睡","做事必须反复检查","难以做出决定","怕乘电车、公共汽车、地铁或火车","呼吸有困难","一阵阵发冷或发热","因为感到害怕而避开某些东西、场合或活动","脑子变空了","身体发麻或刺痛","喉咙有梗塞感","感到前途没有希望","不能集中注意力","身体的某一部分感到虚弱","感到紧张或容易紧张","感到手或脚发重","想到有关死亡的事","吃得太多","当别人看着您或谈论您时感到不自在","有一些不属于您自己的想法","有想打人或伤害他人的冲动","醒得太早","必须反复洗手、点数目或触摸某些东西","睡得不稳不深","有想摔坏或破坏东西的想法","有一些别人没有的想法或念头","感到对别人神经过敏","在商店或电影院等人多的地方感到不自在","感到任何事情都很困难","一阵阵恐惧或惊恐","感到在公共场合吃东西很不舒服","经常与人争论","单独一人时神经很紧张","别人对您的成绩没有做出恰当的评价","即使和别人在一起也感到孤单","感到坐立不安心神不定","感到自己没有什么价值","感到熟悉的东西变成陌生或不像是真的","大叫或摔东西","害怕会在公共场合昏倒","感到别人想占您的便宜","为一些有关性的想法而很苦恼","您认为应该因为自己的过错而受到惩罚","感到要赶快把事情做完","感到自己的身体有严重问题","从未感到和其他人很亲近","感到自己有罪","感到自己的脑子有毛病"];
+const factors={'躯体化':[0,3,11,26,39,41,47,48,51,52,55,57],'强迫症状':[2,8,9,27,37,44,45,50,54,64],'人际关系敏感':[5,20,33,35,36,40,60,68,72],'抑郁':[4,13,14,19,21,25,28,29,30,31,53,70,78],'焦虑':[1,16,22,32,38,56,71,77,79,85],'敌对':[10,23,62,66,73,80],'恐怖':[12,24,46,49,69,74,81],'偏执':[7,17,42,67,75,82],'精神病性':[6,15,34,61,76,83,84,86,87,89]};
+const factorInfo={'躯体化':{desc:'反映主观感受到的身体不适',normal:'躯体化症状在正常范围内',mild:'可能偶尔感到身体不适。建议保持规律作息、适度运动、学习放松技巧',moderate:'较频繁感受身体不适。建议及时就医排查器质性疾病、学习压力管理、考虑心理咨询',severe:'存在较严重躯体化症状。建议立即就医体检、寻求专业心理咨询、可能需要药物辅助治疗'},'强迫症状':{desc:'反映强迫性思维和行为',normal:'没有明显强迫症状',mild:'偶尔有重复性想法或行为。建议不要过分关注、培养兴趣爱好、保持生活灵活性',moderate:'存在一定强迫思维或行为。建议寻求心理咨询、学习认知行为疗法、记录触发因素',severe:'强迫症状较严重。建议尽快寻求精神科医生帮助、可能需要药物配合心理治疗'},'人际关系敏感':{desc:'反映人际交往中的不自在感',normal:'人际交往感到自在',mild:'某些社交场合略感不适。建议多参与社交活动、培养自信心、学习社交技巧',moderate:'人际交往较为敏感。建议参加社交技能训练、寻求心理咨询、从小范围社交开始',severe:'人际关系非常敏感。建议及时寻求专业心理咨询、可能需要系统心理治疗'},'抑郁':{desc:'反映情绪低落、兴趣减退等',normal:'情绪状态良好',mild:'偶尔情绪低落。建议保持规律作息、坚持运动、培养兴趣爱好、多与人交流',moderate:'存在较明显抑郁情绪。建议寻求专业心理咨询、规律运动、保持社交、必要时考虑药物治疗',severe:'可能存在严重抑郁症状。建议立即寻求精神科医生帮助、可能需要抗抑郁药物、定期心理咨询。如有自杀想法请立即拨打危机干预热线'},'焦虑':{desc:'反映焦虑、紧张等情绪',normal:'焦虑水平正常',mild:'某些情况感到焦虑。建议学习深呼吸放松技巧、规律运动、保证充足睡眠',moderate:'存在较明显焦虑症状。建议寻求心理咨询、学习焦虑管理、练习正念冥想',severe:'焦虑症状严重。建议立即寻求专业帮助、可能需要抗焦虑药物、系统心理治疗'},'敌对':{desc:'反映愤怒、攻击性等',normal:'能够较好控制情绪',mild:'偶尔愤怒或烦躁。建议学习情绪管理、找到健康宣泄方式、多运动',moderate:'较易产生愤怒情绪。建议寻求心理咨询、学习愤怒管理、识别触发因素',severe:'敌对情绪较强。建议及时寻求专业帮助、可能需要心理治疗。如有暴力倾向请立即就医'},'恐怖':{desc:'反映对特定场所的恐惧',normal:'没有明显恐惧症状',mild:'对某些场景略感不适。建议逐步暴露、学习放松技巧、不要过度回避',moderate:'存在一定恐惧症状。建议寻求心理咨询、系统脱敏疗法、逐步面对恐惧',severe:'恐惧症状明显。建议立即寻求帮助、认知行为疗法有效、可能需要药物辅助'},'偏执':{desc:'反映猜疑、被害思想等',normal:'思维正常',mild:'偶尔有多疑想法。建议多与他人沟通、培养信任感、关注积极方面',moderate:'存在一定猜疑或偏执思维。建议寻求心理咨询、学习质疑自己想法、增加互动',severe:'偏执思维较严重。建议立即寻求精神科医生帮助、可能需要药物治疗'},'精神病性':{desc:'反映精神分裂症相关症状',normal:'思维和感知正常',mild:'偶尔有奇特想法。建议保持规律作息、如症状持续请咨询专业人士',moderate:'存在一些精神病性症状。建议尽快寻求精神科医生评估、可能需要药物治疗',severe:'精神病性症状明显。建议立即就医、需要专业精神科治疗、家人应密切关注'}};
 
-  <div class="toolbar">
-    <div class="progress" id="progress">已答 0/90</div>
-    <div class="legend">1=没有 · 2=很轻 · 3=中等 · 4=偏重 · 5=严重</div>
-    <div style="flex:1"></div>
-    <button class="btn primary" id="submitBtn">提交并查看结果</button>
-  </div>
+function renderQuestions(){const t=document.getElementById('testArea');let h='';questions.forEach((q,i)=>{h+=`<div class="question"><div class="question-text"><span class="question-number">${i+1}</span>${q}</div><div class="options">`;for(let j=1;j<=5;j++){const l=['没有','很轻','中等','偏重','严重'];h+=`<label class="option-label"><input type="radio" name="q${i}" value="${j}" required><span>${j}-${l[j-1]}</span></label>`;}h+=`</div></div>`;});t.innerHTML=h;}
 
-  <div class="container">
-    <div id="crisisBox" class="crisis" style="display:none;"></div>
-    <div id="errorBox" class="error"></div>
-    <form id="form">
-      <div id="questions"></div>
-    </form>
+document.getElementById('scl90Form').addEventListener('submit',function(e){e.preventDefault();const f=new FormData(this),a=[];for(let i=0;i<90;i++){const v=f.get(`q${i}`);if(!v){document.getElementById('errorMessage').classList.add('show');setTimeout(()=>document.getElementById('errorMessage').classList.remove('show'),3000);return;}a.push(parseInt(v));}calculateResults(a);});
 
-    <section id="results" class="results" style="display:none;">
-      <h3 style="margin:0 0 6px;">测评结果</h3>
-      <div id="resultsSummary" class="metrics"></div>
-      <div id="factorAnalyses"></div>
-      <p style="color:var(--muted); font-size:12px; margin-top:8px;">
-        参考提示：一般而言，因子均分 ≥ 2.0 提示需要关注，≥ 3.0 提示明显困扰。请结合你的实际情境理解结果。
-      </p>
-    </section>
-  </div>
+function calculateResults(a){const t=a.reduce((s,v)=>s+v,0),av=(t/90).toFixed(2),pc=a.filter(v=>v>=2).length,ps=a.filter(v=>v>=2).reduce((s,v)=>s+v,0),pa=pc>0?(ps/pc).toFixed(2):0;const fs={},fa={};for(let[n,idx]of Object.entries(factors)){const sum=idx.reduce((s,i)=>s+a[i],0);fs[n]=sum;fa[n]=(sum/idx.length).toFixed(2);}displayResults({totalScore:t,avgScore:av,positiveCount:pc,positiveAvg:pa,factorScores:fs,factorAvgs:fa});}
 
-  <footer>
-    <div>隐私：本页面不联网、不保存到云端；所有计算在本地浏览器完成。</div>
-    <div>求助：如出现自伤/他伤念头或极端困扰，请立即联系家人朋友、当地紧急服务、或专业心理援助热线。</div>
-  </footer>
+function displayResults(r){document.getElementById('scl90Form').style.display='none';document.getElementById('instruction').style.display='none';const ra=document.getElementById('resultArea');ra.classList.add('show');document.getElementById('summaryGrid').innerHTML=`<div class="summary-item"><div class="label">总分</div><div class="value">${r.totalScore}</div></div><div class="summary-item"><div class="label">总均分</div><div class="value">${r.avgScore}</div></div><div class="summary-item"><div class="label">阳性项目数</div><div class="value">${r.positiveCount}</div></div><div class="summary-item"><div class="label">阳性症状均分</div><div class="value">${r.positiveAvg}</div></div>`;let th='';for(let[n,s]of Object.entries(r.factorScores)){const av=r.factorAvgs[n],l=getLevel(parseFloat(av));th+=`<tr><td>${n}</td><td>${s}</td><td>${av}</td><td class="${l.class}">${l.text}</td></tr>`;}document.getElementById('factorTableBody').innerHTML=th;drawRadarChart(r.factorAvgs);showInterpretation(r);showFactorAnalysis(r.factorAvgs);ra.scrollIntoView({behavior:'smooth'});}
 
-  <script>
-    // ---- 配置区：题目与因子映射 ----
-    const NUM_ITEMS = 90;
+function getLevel(v){if(v<2)return{text:'正常',class:'level-normal'};else if(v<3)return{text:'轻度',class:'level-mild'};else if(v<4)return{text:'中度',class:'level-moderate'};else return{text:'重度',class:'level-severe'};}
 
-    // 题干占位（可后续替换为正式中文条目）
-    const questions = Array.from({length: NUM_ITEMS}, (_,i) => `项目 ${i+1}`);
+function drawRadarChart(fa){const c=document.getElementById('radarChart'),ctx=c.getContext('2d'),cx=c.width/2,cy=c.height/2,r=180;ctx.clearRect(0,0,c.width,c.height);const mf=Object.keys(fa),as=(Math.PI*2)/mf.length;ctx.strokeStyle='#e0e0e0';ctx.lineWidth=1;for(let l=1;l<=5;l++){ctx.beginPath();const lr=(r/5)*l;for(let i=0;i<=mf.length;i++){const a=i*as-Math.PI/2,x=cx+lr*Math.cos(a),y=cy+lr*Math.sin(a);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.closePath();ctx.stroke();}ctx.strokeStyle='#ccc';mf.forEach((f,i)=>{const a=i*as-Math.PI/2,x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();ctx.fillStyle='#333';ctx.font='bold 14px Microsoft YaHei';ctx.textAlign='center';ctx.textBaseline='middle';const lx=cx+(r+30)*Math.cos(a),ly=cy+(r+30)*Math.sin(a);ctx.fillText(f,lx,ly);});ctx.beginPath();ctx.strokeStyle='#667eea';ctx.fillStyle='rgba(102,126,234,0.3)';ctx.lineWidth=2;mf.forEach((f,i)=>{const v=parseFloat(fa[f]),vr=(r/5)*v,a=i*as-Math.PI/2,x=cx+vr*Math.cos(a),y=cy+vr*Math.sin(a);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#667eea';mf.forEach((f,i)=>{const v=parseFloat(fa[f]),vr=(r/5)*v,a=i*as-Math.PI/2,x=cx+vr*Math.cos(a),y=cy+vr*Math.sin(a);ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();});}
 
-    // 9个因子映射（1基索引）
-    const FACTORS = {
-      som:  [1,4,12,27,40,42,48,49,52,53,56,58],                                  // 躯体化
-      oc:   [3,9,10,28,38,45,46,51,55,65],                                         // 强迫症状
-      is:   [6,21,34,36,37,41,61,69,73],                                           // 人际敏感
-      dep:  [5,14,15,20,22,26,29,30,31,32,54,71,79],                               // 抑郁
-      anx:  [2,17,23,33,39,57,72,78,80,86],                                        // 焦虑
-      hos:  [11,24,63,67,74,81],                                                   // 敌对
-      phob: [13,25,47,50,70,75,82],                                                // 恐怖焦虑
-      par:  [8,18,43,68,76,83],                                                    // 偏执
-      psy:  [7,16,35,62,77,84,85,87,88,90],                                        // 精神病性
-    };
+function showInterpretation(r){let h='<p><strong>评价标准：</strong></p><ul><li>总分超过160分，或阳性项目数超过43项，或任一因子均分超过2分，考虑筛查阳性</li><li>因子均分 &lt; 2：正常</li><li>因子均分 2-3：轻度</li><li>因子均分 3-4：中度</li><li>因子均分 ≥ 4：重度</li></ul><p><strong>您的测试结果：</strong></p>';if(r.totalScore>160||r.positiveCount>43){h+='<p style="color:#f44336;font-weight:bold;">筛查阳性，建议寻求专业心理咨询帮助。</p>';}else{h+='<p style="color:#28a745;font-weight:bold;">整体在正常范围内。</p>';}h+='<p style="margin-top:20px;color:#ff9800;"><strong>提醒：</strong>本测试仅供参考，不能作为诊断依据。如有严重心理问题，请及时寻求专业心理咨询师或精神科医生的帮助。</p>';document.getElementById('interpretationText').innerHTML=h;}
 
-    const FACTOR_NAMES = {
-      som: '躯体化', oc: '强迫症状', is: '人际敏感', dep: '抑郁',
-      anx: '焦虑', hos: '敌对', phob: '恐怖焦虑', par: '偏执', psy: '精神病性'
-    };
+function showFactorAnalysis(fa){let h='';for(let[n,v]of Object.entries(fa)){const info=factorInfo[n],val=parseFloat(v),lvl=getLevel(val);let advice='',badge='';if(val<2){advice=info.normal;badge='background:#28a745;color:white;';}else if(val<3){advice=info.mild;badge='background:#ffc107;color:white;';}else if(val<4){advice=info.moderate;badge='background:#ff9800;color:white;';}else{advice=info.severe;badge='background:#f44336;color:white;';}h+=`<div class="factor-item"><h4>${n} <span class="score-badge" style="${badge}">${v}分 - ${lvl.text}</span></h4><p><strong>因子说明：</strong>${info.desc}</p><p><strong>分析建议：</strong>${advice}</p></div>`;}document.getElementById('factorAnalysisText').innerHTML=h;}
 
-    // 维度分析文案（按等级拼接）
-    function factorAdvice(factorId, level) {
-      const base = {
-        som:  '关注身体不适与压力关系，如头痛、胸闷、消化不适等；先排除躯体疾病，再考虑放松与睡眠管理。',
-        oc:   '可能存在反复思考、难以放松或完美要求；尝试任务分解、限时思考、暴露-反应预防类练习。',
-        is:   '在人际互动中更易自责或敏感；练习基于事实的反馈、逐步增加正向互动与自我接纳。',
-        dep:  '情绪低落、兴趣减退或动力不足；建立稳定作息、小步行动，必要时寻求专业评估。',
-        anx:  '紧张不安、易惊或担忧过多；练习腹式呼吸、渐进性肌肉放松，区分可控与不可控问题。',
-        hos:  '易怒或与他人冲突；识别触发情境，练习非暴力沟通与情绪暂离（time-out）。',
-        phob: '回避某些场景（如乘坐、密闭、高处等）；可循序渐进进行暴露练习，记录焦虑曲线。',
-        par:  '可能较多疑或感受被误解；用证据检验想法，区分猜测与事实，适度求证。',
-        psy:  '或伴思维怪异感、社交退缩或现实感降低；若持续且影响功能，建议尽快专业评估。'
-      };
-      if (level === 'low')  return '总体处于可接受范围。保持当下策略与规律生活。';
-      if (level === 'mid')  return '提示一定困扰：' + base[factorId];
-      if (level === 'high') return '提示明显困扰，建议尽快寻求专业评估与支持：' + base[factorId];
-      return '';
-    }
-
-    // 计算等级与标签
-    function levelFromMean(m) {
-      if (m >= 3) return {k:'high', label:'明显困扰', cls:'danger'};
-      if (m >= 2) return {k:'mid',  label:'需要关注', cls:'warn'};
-      return {k:'low', label:'总体可接受', cls:'ok'};
-    }
-
-    // ---- 渲染题目 ----
-    const qWrap = document.getElementById('questions');
-    const form = document.getElementById('form');
-    const progressEl = document.getElementById('progress');
-    const errorBox = document.getElementById('errorBox');
-    const submitBtn = document.getElementById('submitBtn');
-
-    function renderQuestions() {
-      const frag = document.createDocumentFragment();
-      for (let i=1;i<=NUM_ITEMS;i++) {
-        const qDiv = document.createElement('div');
-        qDiv.className = 'q';
-        qDiv.id = 'q' + i;
-        const title = document.createElement('h3');
-        title.textContent = `${i}. ${questions[i-1]}`;
-        qDiv.appendChild(title);
-
-        const opts = document.createElement('div');
-        opts.className = 'opts';
-        const labels = ['没有','很轻','中等','偏重','严重'];
-        for (let v=1; v<=5; v++) {
-          const lab = document.createElement('label');
-          lab.className = 'opt';
-          const input = document.createElement('input');
-          input.type = 'radio';
-          input.name = 'q' + i;
-          input.value = String(v);
-          lab.appendChild(input);
-          const span = document.createElement('span');
-          span.textContent = `${v}（${labels[v-1]}）`;
-          lab.appendChild(span);
-          opts.appendChild(lab);
-        }
-        qDiv.appendChild(opts);
-        frag.appendChild(qDiv);
-      }
-      qWrap.appendChild(frag);
-    }
-    renderQuestions();
-
-    // ---- 进度统计 ----
-    function updateProgress() {
-      const answered = Array.from({length:NUM_ITEMS},(_,i)=>document.querySelector(`input[name="q${i+1}"]:checked`)).filter(Boolean).length;
-      progressEl.textContent = `已答 ${answered}/${NUM_ITEMS}`;
-    }
-    form.addEventListener('change', updateProgress);
-    updateProgress();
-
-    // ---- 提交、校验与计分 ----
-    function scrollToQuestion(i) {
-      const el = document.getElementById('q'+i);
-      if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
-    }
-
-    function compute() {
-      // 校验
-      errorBox.textContent = '';
-      for (let i=1;i<=NUM_ITEMS;i++) {
-        const chosen = document.querySelector(`input[name="q${i}"]:checked`);
-        if (!chosen) {
-          errorBox.textContent = `还有未作答的题目：第 ${i} 题`;
-          scrollToQuestion(i);
-          return null;
-        }
-      }
-      // 汇总
-      const vals = [0]; // 1基
-      let total = 0, pst = 0;
-      for (let i=1;i<=NUM_ITEMS;i++) {
-        const v = parseInt(document.querySelector(`input[name="q${i}"]:checked`).value,10);
-        vals[i] = v;
-        total += v;
-        if (v >= 2) pst++;
-      }
-      // 维度
-      const factorMeans = {};
-      for (const k of Object.keys(FACTORS)) {
-        const ids = FACTORS[k];
-        const sum = ids.reduce((acc,idx)=>acc+vals[idx],0);
-        factorMeans[k] = sum / ids.length;
-      }
-      const gsi = total / NUM_ITEMS;
-      const psdi = pst ? (total / pst) : 0;
-
-      // 危机提示：第15题（自伤/绝望相关）≥4 给出提醒（也可扩展更多触发项）
-      const crisis = (vals[15] >= 4);
-      return {factorMeans, gsi, pst, psdi, crisis};
-    }
-
-    // ---- 展示结果与维度分析 ----
-    const resultsEl = document.getElementById('results');
-    const resultsSummary = document.getElementById('resultsSummary');
-    const factorAnalyses = document.getElementById('factorAnalyses');
-    const crisisBox = document.getElementById('crisisBox');
-
-    function showResults(res) {
-      // 危机提示
-      crisisBox.style.display = res.crisis ? 'block' : 'none';
-      crisisBox.textContent = res.crisis
-        ? '重要提示：你的部分作答提示存在较高风险。如出现自伤/他伤或强烈绝望感，请立即联系当地紧急服务或专业机构寻求帮助。'
-        : '';
-
-      // 关键指标
-      resultsSummary.innerHTML = '';
-      const mk = (title,val,desc) => {
-        const box = document.createElement('div');
-        box.className = 'metric';
-        const h4 = document.createElement('h4'); h4.textContent = title; box.appendChild(h4);
-        const v = document.createElement('div'); v.className='val'; v.textContent = val; box.appendChild(v);
-        if (desc) { const d = document.createElement('div'); d.style.color='var(--muted)'; d.style.fontSize='12px'; d.textContent = desc; box.appendChild(d); }
-        return box;
-      };
-      resultsSummary.appendChild(mk('总均分 GSI', res.gsi.toFixed(2), '整体症状负担'));
-      resultsSummary.appendChild(mk('阳性项目数 PST', String(res.pst), '得分≥2的题目数量'));
-      resultsSummary.appendChild(mk('阳性平均 PSDI', res.psdi.toFixed(2), '阳性题目的平均强度'));
-
-      // 维度分析
-      factorAnalyses.innerHTML = '';
-      for (const k of Object.keys(FACTORS)) {
-        const mean = res.factorMeans[k];
-        const lvl = levelFromMean(mean);
-        const section = document.createElement('div');
-        section.className = 'factor';
-        const h4 = document.createElement('h4');
-        h4.innerHTML = `${FACTOR_NAMES[k]}：${mean.toFixed(2)} <span class="pill ${lvl.cls}">${lvl.label}</span>`;
-        section.appendChild(h4);
-        const p1 = document.createElement('p');
-        p1.textContent = (() => {
-          if (lvl.k === 'low')  return '解读：当前该维度总体处于可接受范围，偶发体验属于常见现象。';
-          if (lvl.k === 'mid')  return '解读：该维度存在一定程度的困扰，建议留意触发情境与持续时间。';
-          return '解读：该维度提示明显困扰，可能已影响学习/工作/关系或生理状态。';
-        })();
-        const p2 = document.createElement('p');
-        p2.textContent = '建议：' + factorAdvice(k, lvl.k);
-        section.appendChild(p1);
-        section.appendChild(p2);
-        factorAnalyses.appendChild(section);
-      }
-
-      resultsEl.style.display = 'block';
-      resultsEl.scrollIntoView({behavior:'smooth', block:'start'});
-    }
-
-    submitBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const res = compute();
-      if (!res) return;
-      showResults(res);
-    });
-  </script>
+renderQuestions();
+    </script>
 </body>
 </html>
