@@ -1011,8 +1011,21 @@
         
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
-            renderDesktopQuestions();
-            renderMobileQuestion();
+            // 检查是否有已完成的测试结果
+            const completed = localStorage.getItem('scl90_completed');
+            if (completed === 'true') {
+                // 从localStorage加载测试结果
+                const savedResults = localStorage.getItem('scl90_results');
+                if (savedResults) {
+                    const results = JSON.parse(savedResults);
+                    // 直接显示结果页面
+                    displayResults(results);
+                }
+            } else {
+                // 正常显示测试页面
+                renderDesktopQuestions();
+                renderMobileQuestion();
+            }
             
             // 检测屏幕尺寸变化
             window.addEventListener('resize', handleResize);
@@ -1905,8 +1918,9 @@
             if (resultArea) resultArea.style.display = 'none';
             if (mobileResultArea) mobileResultArea.style.display = 'none';
             if (completedNotice) completedNotice.style.display = 'none';
-            if (scl90Form) scl90Form.style.display = 'block';
-            if (mobileTestArea) mobileTestArea.style.display = 'block';
+            // 不直接设置display，让CSS媒体查询控制显示
+            if (scl90Form) scl90Form.style.display = '';
+            if (mobileTestArea) mobileTestArea.style.display = '';
             
             // 重置移动端进度
             if (typeof currentMobileQuestion !== 'undefined') {
