@@ -415,6 +415,57 @@
         .result-area.show { 
             display: block; 
         }
+        
+        /* 移动端结果区域样式 */
+        .mobile-result-area { 
+            display: none; 
+            padding: 20px; 
+            background: #f8f9fa; 
+        }
+        .mobile-result-area.show { 
+            display: block; 
+        }
+        
+        /* 移动端结果区域响应式优化 */
+        @media (max-width: 768px) {
+            .mobile-result-area .result-summary,
+            .mobile-result-area .health-assessment,
+            .mobile-result-area .factor-table,
+            .mobile-result-area .factor-analysis,
+            .mobile-result-area .interpretation {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .mobile-result-area .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .mobile-result-area .summary-item {
+                padding: 15px;
+            }
+            
+            .mobile-result-area .summary-item .value {
+                font-size: 24px;
+            }
+            
+            .mobile-result-area table {
+                min-width: 100%;
+                font-size: 14px;
+            }
+            
+            .mobile-result-area th,
+            .mobile-result-area td {
+                padding: 10px 8px;
+            }
+            
+            .mobile-result-area .recommendation-list li {
+                padding: 8px 12px;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+        }
         .result-summary { 
             background: white; 
             padding: 30px; 
@@ -831,6 +882,51 @@
             </div>
         </div>
         
+        <!-- 移动端结果区域 -->
+        <div class="mobile-result-area" id="mobileResultArea" style="display: none;">
+            <div class="result-summary">
+                <h2>📊 测试结果总览</h2>
+                <div class="summary-grid" id="mobileSummaryGrid"></div>
+            </div>
+            
+            <!-- 心理健康评估和建议模块 -->
+            <div class="health-assessment" id="mobileHealthAssessment">
+                <h3>💡 心理健康评估与建议</h3>
+                <div id="mobileAssessmentContent"></div>
+            </div>
+            
+            <div class="factor-table">
+                <h3>📈 各因子得分详情</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>因子名称</th>
+                                <th>因子分</th>
+                                <th>因子均分</th>
+                                <th>程度评价</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mobileFactorTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="factor-analysis">
+                <h3>📋 各因子详细分析</h3>
+                <div id="mobileFactorAnalysisText"></div>
+            </div>
+            
+            <div class="interpretation">
+                <h3>💡 总体评价</h3>
+                <div id="mobileInterpretationText"></div>
+            </div>
+            
+            <div class="submit-area">
+                <button class="btn" onclick="resetTest()">重新测试</button>
+            </div>
+        </div>
+        
         <!-- 结果区域 -->
         <div class="result-area" id="resultArea">
             <div class="result-summary">
@@ -1218,37 +1314,78 @@
             
             // 显示完成通知和结果
             document.getElementById('completedNotice').style.display = 'block';
-            const ra = document.getElementById('resultArea');
-            ra.classList.add('show');
             
-            // 更新结果总览
-            document.getElementById('summaryGrid').innerHTML = 
-                `<div class="summary-item"><div class="label">总分</div><div class="value">${r.totalScore}</div></div>
-                 <div class="summary-item"><div class="label">总均分</div><div class="value">${r.avgScore}</div></div>
-                 <div class="summary-item"><div class="label">阳性项目数</div><div class="value">${r.positiveCount}</div></div>
-                 <div class="summary-item"><div class="label">阳性症状均分</div><div class="value">${r.positiveAvg}</div></div>`;
+            // 判断设备类型并显示相应的结果区域
+            const isMobile = window.innerWidth <= 768;
             
-            // 更新因子得分表格
-            let th = '';
-            for (let [n, s] of Object.entries(r.factorScores)) {
-                const av = r.factorAvgs[n];
-                const l = getLevel(parseFloat(av));
-                th += `<tr><td>${n}</td><td>${s}</td><td>${av}</td><td class="${l.class}">${l.text}</td></tr>`;
+            if (isMobile) {
+                // 移动端：显示移动端结果区域，隐藏PC端结果区域
+                document.getElementById('resultArea').style.display = 'none';
+                const mobileRa = document.getElementById('mobileResultArea');
+                mobileRa.style.display = 'block';
+                mobileRa.classList.add('show');
+                
+                // 更新移动端结果总览
+                document.getElementById('mobileSummaryGrid').innerHTML = 
+                    `<div class="summary-item"><div class="label">总分</div><div class="value">${r.totalScore}</div></div>
+                     <div class="summary-item"><div class="label">总均分</div><div class="value">${r.avgScore}</div></div>
+                     <div class="summary-item"><div class="label">阳性项目数</div><div class="value">${r.positiveCount}</div></div>
+                     <div class="summary-item"><div class="label">阳性症状均分</div><div class="value">${r.positiveAvg}</div></div>`;
+                
+                // 更新移动端因子得分表格
+                let mobileTh = '';
+                for (let [n, s] of Object.entries(r.factorScores)) {
+                    const av = r.factorAvgs[n];
+                    const l = getLevel(parseFloat(av));
+                    mobileTh += `<tr><td>${n}</td><td>${s}</td><td>${av}</td><td class="${l.class}">${l.text}</td></tr>`;
+                }
+                document.getElementById('mobileFactorTableBody').innerHTML = mobileTh;
+                
+                // 显示移动端健康评估和建议
+                showMobileHealthAssessment(r);
+                
+                // 显示移动端解读和建议
+                showMobileInterpretation(r);
+                showMobileFactorAnalysis(r.factorAvgs);
+                
+                // 滚动到移动端结果区域
+                mobileRa.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                // PC端：显示PC端结果区域，隐藏移动端结果区域
+                document.getElementById('mobileResultArea').style.display = 'none';
+                const ra = document.getElementById('resultArea');
+                ra.style.display = 'block';
+                ra.classList.add('show');
+                
+                // 更新PC端结果总览
+                document.getElementById('summaryGrid').innerHTML = 
+                    `<div class="summary-item"><div class="label">总分</div><div class="value">${r.totalScore}</div></div>
+                     <div class="summary-item"><div class="label">总均分</div><div class="value">${r.avgScore}</div></div>
+                     <div class="summary-item"><div class="label">阳性项目数</div><div class="value">${r.positiveCount}</div></div>
+                     <div class="summary-item"><div class="label">阳性症状均分</div><div class="value">${r.positiveAvg}</div></div>`;
+                
+                // 更新PC端因子得分表格
+                let th = '';
+                for (let [n, s] of Object.entries(r.factorScores)) {
+                    const av = r.factorAvgs[n];
+                    const l = getLevel(parseFloat(av));
+                    th += `<tr><td>${n}</td><td>${s}</td><td>${av}</td><td class="${l.class}">${l.text}</td></tr>`;
+                }
+                document.getElementById('factorTableBody').innerHTML = th;
+                
+                // 绘制雷达图
+                drawRadarChart(r.factorAvgs);
+                
+                // 显示PC端健康评估和建议
+                showHealthAssessment(r);
+                
+                // 显示PC端解读和建议
+                showInterpretation(r);
+                showFactorAnalysis(r.factorAvgs);
+                
+                // 滚动到PC端结果区域
+                ra.scrollIntoView({ behavior: 'smooth' });
             }
-            document.getElementById('factorTableBody').innerHTML = th;
-            
-            // 绘制雷达图
-            drawRadarChart(r.factorAvgs);
-            
-            // 显示健康评估和建议
-            showHealthAssessment(r);
-            
-            // 显示解读和建议
-            showInterpretation(r);
-            showFactorAnalysis(r.factorAvgs);
-            
-            // 滚动到结果区域
-            ra.scrollIntoView({ behavior: 'smooth' });
         }
         
         // 获取等级
@@ -1449,15 +1586,6 @@
                             <li>创建安全空间，允许自己表达真实感受</li>
                         </ul>
                     </div>
-                    <div class="recommendation-category">
-                        <h4>👥 支持系统</h4>
-                        <ul class="recommendation-list">
-                            <li>与家人朋友坦诚沟通自己的状态和需求</li>
-                            <li>考虑加入同辈支持小组，分享经验</li>
-                            <li>学习设立健康边界，保护自己的心理健康</li>
-                            <li>在困难时期寻求额外支持，不要独自承受</li>
-                        </ul>
-                    </div>
                 `;
             } else {
                 // 重度困扰
@@ -1556,6 +1684,206 @@
             document.getElementById('factorAnalysisText').innerHTML = h;
         }
         
+        // 移动端显示健康评估和建议
+        function showMobileHealthAssessment(r) {
+            // 计算整体健康水平
+            const totalScore = r.totalScore;
+            const avgScore = parseFloat(r.avgScore);
+            const highFactors = [];
+            
+            for (let [n, v] of Object.entries(r.factorAvgs)) {
+                if (parseFloat(v) >= 2) {
+                    highFactors.push(n);
+                }
+            }
+            
+            let assessmentLevel, assessmentClass, assessmentText, recommendations;
+            
+            // 根据总分和因子分确定健康水平
+            if (totalScore < 160 && highFactors.length === 0) {
+                // 正常范围
+                assessmentLevel = "正常范围";
+                assessmentClass = "level-normal-bg";
+                assessmentText = "您的心理健康状况总体良好，没有明显的心理困扰迹象。";
+                
+                recommendations = `
+                    <div class="recommendation-category">
+                        <h4>💪 保持健康习惯</h4>
+                        <ul class="recommendation-list">
+                            <li>继续保持规律的作息和充足的睡眠</li>
+                            <li>每周进行3-5次中等强度运动，每次30分钟</li>
+                            <li>保持均衡饮食，多摄入水果蔬菜</li>
+                            <li>培养至少一项兴趣爱好，丰富生活内容</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>🧠 心理保健</h4>
+                        <ul class="recommendation-list">
+                            <li>学习简单的压力管理技巧，如深呼吸和冥想</li>
+                            <li>定期进行自我反思和情绪检查</li>
+                            <li>保持积极的社交联系，与家人朋友定期交流</li>
+                            <li>每年进行一次心理健康评估，关注变化</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (totalScore < 200 || highFactors.length <= 2) {
+                // 轻度困扰
+                assessmentLevel = "轻度心理困扰";
+                assessmentClass = "level-mild-bg";
+                assessmentText = "您可能正在经历一些轻微的心理困扰，但通常可以通过自我调节改善。";
+                
+                recommendations = `
+                    <div class="recommendation-category">
+                        <h4>💪 生活方式调整</h4>
+                        <ul class="recommendation-list">
+                            <li>建立规律的作息时间，确保7-8小时睡眠</li>
+                            <li>增加户外活动时间，每天至少散步30分钟</li>
+                            <li>减少咖啡因和酒精摄入</li>
+                            <li>尝试正念冥想或深呼吸练习，每天10-15分钟</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>🧠 心理技巧</h4>
+                        <ul class="recommendation-list">
+                            <li>学习认知行为疗法基础，识别和挑战负面思维</li>
+                            <li>练习情绪日记，记录每天的情绪变化</li>
+                            <li>尝试渐进式肌肉放松技术缓解身体紧张</li>
+                            <li>设置小目标，逐步建立成就感和自信心</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>👥 社交支持</h4>
+                        <ul class="recommendation-list">
+                            <li>与信任的朋友或家人分享感受</li>
+                            <li>参加兴趣小组或社区活动，扩大社交圈</li>
+                            <li>学习有效沟通技巧，改善人际关系</li>
+                            <li>考虑参加心理健康讲座或工作坊</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (totalScore < 250 || highFactors.length <= 4) {
+                // 中度困扰
+                assessmentLevel = "中度心理困扰";
+                assessmentClass = "level-moderate-bg";
+                assessmentText = "您可能正在经历中等程度的心理困扰，建议寻求专业心理咨询师的帮助。";
+                
+                recommendations = `
+                    <div class="recommendation-category">
+                        <h4>💪 专业干预</h4>
+                        <ul class="recommendation-list">
+                            <li>考虑预约专业心理咨询师进行评估</li>
+                            <li>了解认知行为疗法、接纳与承诺疗法等有效方法</li>
+                            <li>如有需要，咨询精神科医生评估药物治疗可能性</li>
+                            <li>寻找可靠的心理健康资源和支持团体</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>🧘 自我管理</h4>
+                        <ul class="recommendation-list">
+                            <li>建立规律的运动习惯，如瑜伽、太极或游泳</li>
+                            <li>练习正念冥想，关注当下感受</li>
+                            <li>学习情绪调节技巧，如情绪命名和接纳</li>
+                            <li>创建安全空间，允许自己表达真实感受</li>
+                        </ul>
+                    </div>
+                `;
+            } else {
+                // 重度困扰
+                assessmentLevel = "重度心理困扰";
+                assessmentClass = "level-severe-bg";
+                assessmentText = "您可能正在经历较严重的心理困扰，强烈建议尽快寻求专业心理健康服务。";
+                
+                recommendations = `
+                    <div class="recommendation-category">
+                        <h4>🚨 紧急干预</h4>
+                        <ul class="recommendation-list">
+                            <li>立即联系心理健康热线或紧急服务（如：心理危机干预热线）</li>
+                            <li>尽快预约精神科医生进行全面评估</li>
+                            <li>考虑短期住院治疗，如果症状严重影响日常生活</li>
+                            <li>告知家人或朋友您的情况，确保有人可以提供支持</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>💊 专业治疗</h4>
+                        <ul class="recommendation-list">
+                            <li>遵循专业医生的治疗计划，包括可能的药物治疗</li>
+                            <li>定期参加心理治疗，如认知行为疗法或心理动力学治疗</li>
+                            <li>考虑综合治疗方法，结合药物和心理治疗</li>
+                            <li>定期复诊，及时调整治疗方案</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>🛡️ 安全计划</h4>
+                        <ul class="recommendation-list">
+                            <li>制定心理健康安全计划，包括危机时的应对策略</li>
+                            <li>移除可能用于自我伤害的物品或手段</li>
+                            <li>建立支持网络，确保在困难时刻有人可以联系</li>
+                            <li>学习识别早期预警信号，及时寻求帮助</li>
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // 如果有特定高因子，添加针对性建议
+            if (highFactors.length > 0) {
+                recommendations += `
+                    <div class="recommendation-category">
+                        <h4>🎯 针对性建议</h4>
+                        <ul class="recommendation-list">
+                            <li>重点关注${highFactors.join('、')}方面的症状改善</li>
+                            <li>学习与这些症状相关的特定应对策略</li>
+                            <li>寻找专门处理这些问题的心理健康专家</li>
+                            <li>阅读相关自助书籍或参加针对性工作坊</li>
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('mobileAssessmentContent').innerHTML = `
+                <div class="assessment-level ${assessmentClass}">${assessmentLevel}</div>
+                <p>${assessmentText}</p>
+                ${recommendations}
+            `;
+        }
+        
+        // 移动端显示解读
+        function showMobileInterpretation(r) {
+            let h = '<p><strong>评价标准：</strong></p><ul><li>总分超过160分，或阳性项目数超过43项，或任一因子均分超过2分，考虑筛查阳性</li><li>因子均分 &lt; 2：正常</li><li>因子均分 2-3：轻度</li><li>因子均分 3-4：中度</li><li>因子均分 ≥ 4：重度</li></ul><p><strong>您的测试结果：</strong></p>';
+            if (r.totalScore > 160 || r.positiveCount > 43) {
+                h += '<p style="color:#f44336;font-weight:500;">筛查阳性，建议寻求专业心理咨询帮助。</p>';
+            } else {
+                h += '<p style="color:#28a745;font-weight:500;">整体在正常范围内。</p>';
+            }
+            h += '<p style="margin-top:20px;color:#ff9800;"><strong>提醒：</strong>本测试仅供参考，不能作为诊断依据。如有严重心理问题，请及时寻求专业心理咨询师或精神科医生的帮助。</p>';
+            document.getElementById('mobileInterpretationText').innerHTML = h;
+        }
+        
+        // 移动端显示因子分析
+        function showMobileFactorAnalysis(fa) {
+            let h = '';
+            for (let [n, v] of Object.entries(fa)) {
+                const info = factorInfo[n];
+                const val = parseFloat(v);
+                const lvl = getLevel(val);
+                let advice = '', badge = '';
+                if (val < 2) {
+                    advice = info.normal;
+                    badge = 'background:#28a745;color:white;';
+                } else if (val < 3) {
+                    advice = info.mild;
+                    badge = 'background:#ffc107;color:white;';
+                } else if (val < 4) {
+                    advice = info.moderate;
+                    badge = 'background:#ff9800;color:white;';
+                } else {
+                    advice = info.severe;
+                    badge = 'background:#f44336;color:white;';
+                }
+                h += `<div class="factor-item"><h4>${n} <span class="score-badge" style="${badge}">${v}分 - ${lvl.text}</span></h4><p><strong>因子说明：</strong>${info.desc}</p><p><strong>分析建议：</strong>${advice}</p></div>`;
+            }
+            document.getElementById('mobileFactorAnalysisText').innerHTML = h;
+        }
+        
         // 重置测试
         function resetTest() {
             localStorage.removeItem('scl90_completed');
@@ -1567,19 +1895,39 @@
                 radio.checked = false;
             });
             
-            // 滚动到页面顶部，显示第一题
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // 隐藏所有结果区域和完成提醒，显示测试区域
+            const resultArea = document.getElementById('resultArea');
+            const mobileResultArea = document.getElementById('mobileResultArea');
+            const scl90Form = document.getElementById('scl90Form');
+            const mobileTestArea = document.getElementById('mobileTestArea');
+            const completedNotice = document.getElementById('completedNotice');
             
-            // 隐藏结果区域，显示测试区域
-            document.getElementById('testResults').style.display = 'none';
-            document.getElementById('pcTestForm').style.display = 'block';
+            if (resultArea) resultArea.style.display = 'none';
+            if (mobileResultArea) mobileResultArea.style.display = 'none';
+            if (completedNotice) completedNotice.style.display = 'none';
+            if (scl90Form) scl90Form.style.display = 'block';
+            if (mobileTestArea) mobileTestArea.style.display = 'block';
             
-            // 如果存在移动端测试容器，也隐藏结果显示测试
-            const mobileTestContainer = document.getElementById('mobileTestContainer');
-            const mobileResultsContainer = document.getElementById('mobileResultsContainer');
-            if (mobileTestContainer && mobileResultsContainer) {
-                mobileResultsContainer.style.display = 'none';
-                mobileTestContainer.style.display = 'block';
+            // 重置移动端进度
+            if (typeof currentMobileQuestion !== 'undefined') {
+                currentMobileQuestion = 0;
+                mobileAnswers = new Array(questions.length).fill(null);
+                if (mobileTestArea) {
+                    renderMobileQuestion();
+                }
+            }
+            
+            // 重新渲染PC端题目
+            if (scl90Form) {
+                renderDesktopQuestions();
+            }
+            
+            // 滚动到测试区域（根据设备类型）
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile && mobileTestArea) {
+                mobileTestArea.scrollIntoView({ behavior: 'smooth' });
+            } else if (scl90Form) {
+                scl90Form.scrollIntoView({ behavior: 'smooth' });
             }
         }
     </script>
