@@ -115,9 +115,39 @@
             border-color: #8B7355;
         }
         
-        .mobile-option input {
+        /* 修复单选按钮显示问题 */
+        .mobile-option input[type="radio"] {
             margin-right: 12px;
-            transform: scale(1.2);
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            /* 确保单选按钮在移动端正常显示 */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border: 2px solid #8B7355;
+            border-radius: 50%;
+            outline: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .mobile-option input[type="radio"]:checked {
+            background-color: #8B7355;
+            border-color: #8B7355;
+            box-shadow: inset 0 0 0 4px white;
+        }
+        
+        .mobile-option input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #8B7355;
         }
         
         .mobile-option span {
@@ -168,26 +198,103 @@
             height: 100%;
             background: linear-gradient(90deg, #8B7355, #6B5B3D);
             width: 0%;
+        }
+        
+        /* 浮动错误提示动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        @keyframes fadeOutDown {
+            from {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+            to {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+        }
+        
+        .floating-error-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .error-icon {
+            font-size: 24px;
+        }
+        
+        .error-text {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .error-text strong {
+            color: #ff6b6b;
+            font-size: 16px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .error-text small {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .close-error {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        
+        .close-error:hover {
+            background-color: #f0f0f0;
+        }
             transition: width 0.4s ease;
         }
         
         /* PC端样式保持不变 */
         .instruction { 
             background: #f8f9fa; 
-            padding: 20px; 
+            padding: 30px 40px; 
             border-left: 4px solid #8B7355; 
-            margin: 20px; 
-            border-radius: 5px; 
+            margin: 25px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            max-width: calc(100% - 50px);
         }
         .instruction h3 { 
             color: #3C3C3C; 
-            margin-bottom: 10px; 
+            margin-bottom: 20px; 
             font-weight: 500;
+            font-size: 20px;
+            text-align: center;
         }
         .instruction p { 
             color: #666; 
-            line-height: 1.6; 
-            margin-bottom: 8px; 
+            line-height: 1.9; 
+            margin-bottom: 15px; 
+            font-size: 16px;
+            text-align: justify;
+            padding: 0 10px;
         }
         .rating-guide { 
             display: flex; 
@@ -418,6 +525,76 @@
             margin: 0 auto; 
             max-width: 100%;
         }
+        
+        /* 新增：健康评估和建议模块 */
+        .health-assessment {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .health-assessment h3 {
+            color: #8B7355;
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 22px;
+        }
+        .assessment-level {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 18px;
+        }
+        .level-normal-bg {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+        .level-mild-bg {
+            background: #fff8e1;
+            color: #f57f17;
+            border-left: 4px solid #ffc107;
+        }
+        .level-moderate-bg {
+            background: #ffe0b2;
+            color: #ef6c00;
+            border-left: 4px solid #ff9800;
+        }
+        .level-severe-bg {
+            background: #ffcdd2;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+        .recommendation-category {
+            margin-bottom: 25px;
+        }
+        .recommendation-category h4 {
+            color: #8B7355;
+            margin-bottom: 15px;
+            font-weight: 500;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+        .recommendation-category h4 i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        .recommendation-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .recommendation-list li {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #8B7355;
+            line-height: 1.6;
+        }
+        
         .interpretation { 
             background: white; 
             padding: 30px; 
@@ -552,13 +729,13 @@
             }
             
             .result-summary, .factor-table, .chart-container, 
-            .interpretation, .factor-analysis {
+            .interpretation, .factor-analysis, .health-assessment {
                 padding: 20px;
                 margin-bottom: 25px;
             }
             
             .result-summary h2, .factor-table h3, .chart-container h3,
-            .interpretation h3, .factor-analysis h3 {
+            .interpretation h3, .factor-analysis h3, .health-assessment h3 {
                 font-size: 20px;
                 margin-bottom: 15px;
             }
@@ -583,6 +760,15 @@
             
             th, td {
                 padding: 10px 12px;
+            }
+            
+            .assessment-level {
+                padding: 12px 15px;
+                font-size: 16px;
+            }
+            
+            .recommendation-category h4 {
+                font-size: 16px;
             }
         }
         
@@ -651,6 +837,13 @@
                 <h2>📊 测试结果总览</h2>
                 <div class="summary-grid" id="summaryGrid"></div>
             </div>
+            
+            <!-- 新增：健康评估和建议模块 -->
+            <div class="health-assessment" id="healthAssessment">
+                <h3>💡 心理健康评估与建议</h3>
+                <div id="assessmentContent"></div>
+            </div>
+            
             <div class="factor-table">
                 <h3>📈 各因子得分详情</h3>
                 <div class="table-wrapper">
@@ -807,18 +1000,30 @@
             });
         }
         
-        // 选择移动端选项
+        // 选择移动端选项 - 修复单选按钮显示问题
         function selectMobileOption(value) {
             isMobileSubmitting = true;
             
             // 更新答案
             mobileAnswers[currentMobileQuestion] = value;
             
-            // 更新UI
+            // 更新UI - 确保单选按钮状态立即更新
             document.querySelectorAll('.mobile-option').forEach(opt => {
                 opt.classList.remove('selected');
+                // 重置所有单选按钮状态
+                const radio = opt.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = false;
+                }
             });
-            document.querySelector(`.mobile-option[data-value="${value}"]`).classList.add('selected');
+            
+            // 设置当前选中的选项
+            const selectedOption = document.querySelector(`.mobile-option[data-value="${value}"]`);
+            selectedOption.classList.add('selected');
+            const selectedRadio = selectedOption.querySelector('input[type="radio"]');
+            if (selectedRadio) {
+                selectedRadio.checked = true;
+            }
             
             // 短暂延迟后自动跳转
             setTimeout(() => {
@@ -876,17 +1081,102 @@
         document.getElementById('scl90Form').addEventListener('submit', function(e) {
             e.preventDefault();
             const f = new FormData(this), a = [];
+            let firstUnanswered = null;
+            
             for (let i = 0; i < 90; i++) {
                 const v = f.get(`q${i}`);
                 if (!v) {
-                    document.getElementById('errorMessage').classList.add('show');
-                    setTimeout(() => document.getElementById('errorMessage').classList.remove('show'), 3000);
-                    return;
+                    if (firstUnanswered === null) {
+                        firstUnanswered = i;
+                    }
+                    a.push(0); // 临时用0填充，但不会提交
+                } else {
+                    a.push(parseInt(v));
                 }
-                a.push(parseInt(v));
             }
+            
+            if (firstUnanswered !== null) {
+                // 创建浮动错误提示
+                showFloatingErrorMessage(firstUnanswered);
+                return;
+            }
+            
             calculateResults(a);
         });
+        
+        // 显示浮动错误提示并跳转到未答题
+        function showFloatingErrorMessage(firstUnanswered) {
+            // 移除可能存在的旧提示
+            const existingFloating = document.getElementById('floatingErrorMessage');
+            if (existingFloating) {
+                existingFloating.remove();
+            }
+            
+            // 创建浮动错误提示
+            const floatingError = document.createElement('div');
+            floatingError.id = 'floatingErrorMessage';
+            floatingError.innerHTML = `
+                <div class="floating-error-content">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-text">
+                        <strong>请完成第${firstUnanswered + 1}题</strong><br>
+                        <small>还有题目未完成，请继续答题</small>
+                    </div>
+                    <button class="close-error" onclick="this.parentElement.parentElement.remove()">×</button>
+                </div>
+            `;
+            
+            // 添加样式
+            floatingError.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #fff;
+                border: 2px solid #ff6b6b;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+                z-index: 1000;
+                min-width: 300px;
+                text-align: center;
+                animation: fadeInUp 0.5s ease-out;
+            `;
+            
+            document.body.appendChild(floatingError);
+            
+            // 滚动到第一个未回答的题目
+            const unansweredQuestion = document.querySelector(`input[name="q${firstUnanswered}"]`).closest('.question');
+            if (unansweredQuestion) {
+                // 先滚动到题目位置
+                unansweredQuestion.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                
+                // 添加高亮效果
+                unansweredQuestion.style.border = '3px solid #ff6b6b';
+                unansweredQuestion.style.borderRadius = '12px';
+                unansweredQuestion.style.padding = '15px';
+                unansweredQuestion.style.backgroundColor = 'rgba(255, 107, 107, 0.1)';
+                unansweredQuestion.style.transition = 'all 0.3s ease';
+                
+                // 5秒后移除高亮效果和错误提示
+                setTimeout(() => {
+                    floatingError.style.animation = 'fadeOutDown 0.5s ease-in';
+                    setTimeout(() => {
+                        if (floatingError.parentElement) {
+                            floatingError.remove();
+                        }
+                    }, 500);
+                    
+                    unansweredQuestion.style.border = '';
+                    unansweredQuestion.style.borderRadius = '';
+                    unansweredQuestion.style.padding = '';
+                    unansweredQuestion.style.backgroundColor = '';
+                }, 5000);
+            }
+        }
         
         // 结果计算函数
         function calculateResults(a) {
@@ -949,6 +1239,9 @@
             
             // 绘制雷达图
             drawRadarChart(r.factorAvgs);
+            
+            // 显示健康评估和建议
+            showHealthAssessment(r);
             
             // 显示解读和建议
             showInterpretation(r);
@@ -1054,6 +1347,177 @@
             });
         }
         
+        // 显示健康评估和建议
+        function showHealthAssessment(r) {
+            // 计算整体健康水平
+            const totalScore = r.totalScore;
+            const avgScore = parseFloat(r.avgScore);
+            const highFactors = [];
+            
+            for (let [n, v] of Object.entries(r.factorAvgs)) {
+                if (parseFloat(v) >= 2) {
+                    highFactors.push(n);
+                }
+            }
+            
+            let assessmentLevel, assessmentClass, assessmentText, recommendations;
+            
+            // 根据总分和因子分确定健康水平
+            if (totalScore < 160 && highFactors.length === 0) {
+                // 正常范围
+                assessmentLevel = "正常范围";
+                assessmentClass = "level-normal-bg";
+                assessmentText = "您的心理健康状况总体良好，没有明显的心理困扰迹象。";
+                
+                recommendations = `
+                    <div class="recommendation-category">
+                        <h4>💪 保持健康习惯</h4>
+                        <ul class="recommendation-list">
+                            <li>继续保持规律的作息和充足的睡眠</li>
+                            <li>每周进行3-5次中等强度运动，每次30分钟</li>
+                            <li>保持均衡饮食，多摄入水果蔬菜</li>
+                            <li>培养至少一项兴趣爱好，丰富生活内容</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>🧠 心理保健</h4>
+                        <ul class="recommendation-list">
+                            <li>学习简单的压力管理技巧，如深呼吸和冥想</li>
+                            <li>定期进行自我反思和情绪检查</li>
+                            <li>保持积极的社交联系，与家人朋友定期交流</li>
+                            <li>每年进行一次心理健康评估，关注变化</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (totalScore < 200 || highFactors.length <= 2) {
+                // 轻度困扰
+                assessmentLevel = "轻度心理困扰";
+                assessmentClass = "level-mild-bg";
+                assessmentText = "您可能正在经历一些轻微的心理困扰，但通常可以通过自我调节改善。";
+                
+                recommendations = `
+                    <div class="recommendation-category">
+                        <h4>💪 生活方式调整</h4>
+                        <ul class="recommendation-list">
+                            <li>建立规律的作息时间，确保7-8小时睡眠</li>
+                            <li>增加户外活动时间，每天至少散步30分钟</li>
+                            <li>减少咖啡因和酒精摄入</li>
+                            <li>尝试正念冥想或深呼吸练习，每天10-15分钟</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>🧠 心理技巧</h4>
+                        <ul class="recommendation-list">
+                            <li>学习认知行为疗法基础，识别和挑战负面思维</li>
+                            <li>练习情绪日记，记录每天的情绪变化</li>
+                            <li>尝试渐进式肌肉放松技术缓解身体紧张</li>
+                            <li>设置小目标，逐步建立成就感和自信心</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>👥 社交支持</h4>
+                        <ul class="recommendation-list">
+                            <li>与信任的朋友或家人分享感受</li>
+                            <li>参加兴趣小组或社区活动，扩大社交圈</li>
+                            <li>学习有效沟通技巧，改善人际关系</li>
+                            <li>考虑参加心理健康讲座或工作坊</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (totalScore < 250 || highFactors.length <= 4) {
+                // 中度困扰
+                assessmentLevel = "中度心理困扰";
+                assessmentClass = "level-moderate-bg";
+                assessmentText = "您可能正在经历中等程度的心理困扰，建议寻求专业心理咨询师的帮助。";
+                
+                recommendations = `
+                    <div class="recommendation-category">
+                        <h4>💪 专业干预</h4>
+                        <ul class="recommendation-list">
+                            <li>考虑预约专业心理咨询师进行评估</li>
+                            <li>了解认知行为疗法、接纳与承诺疗法等有效方法</li>
+                            <li>如有需要，咨询精神科医生评估药物治疗可能性</li>
+                            <li>寻找可靠的心理健康资源和支持团体</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>🧘 自我管理</h4>
+                        <ul class="recommendation-list">
+                            <li>建立规律的运动习惯，如瑜伽、太极或游泳</li>
+                            <li>练习正念冥想，关注当下感受</li>
+                            <li>学习情绪调节技巧，如情绪命名和接纳</li>
+                            <li>创建安全空间，允许自己表达真实感受</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>👥 支持系统</h4>
+                        <ul class="recommendation-list">
+                            <li>与家人朋友坦诚沟通自己的状态和需求</li>
+                            <li>考虑加入同辈支持小组，分享经验</li>
+                            <li>学习设立健康边界，保护自己的心理健康</li>
+                            <li>在困难时期寻求额外支持，不要独自承受</li>
+                        </ul>
+                    </div>
+                `;
+            } else {
+                // 重度困扰
+                assessmentLevel = "重度心理困扰";
+                assessmentClass = "level-severe-bg";
+                assessmentText = "您可能正在经历较严重的心理困扰，强烈建议尽快寻求专业心理健康服务。";
+                
+                recommendations = `
+                    <div class="recommendation-category">
+                        <h4>🚨 紧急干预</h4>
+                        <ul class="recommendation-list">
+                            <li>立即联系心理健康热线或紧急服务（如：心理危机干预热线）</li>
+                            <li>尽快预约精神科医生进行全面评估</li>
+                            <li>考虑短期住院治疗，如果症状严重影响日常生活</li>
+                            <li>告知家人或朋友您的情况，确保有人可以提供支持</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>💊 专业治疗</h4>
+                        <ul class="recommendation-list">
+                            <li>遵循专业医生的治疗计划，包括可能的药物治疗</li>
+                            <li>定期参加心理治疗，如认知行为疗法或心理动力学治疗</li>
+                            <li>考虑综合治疗方法，结合药物和心理治疗</li>
+                            <li>定期复诊，及时调整治疗方案</li>
+                        </ul>
+                    </div>
+                    <div class="recommendation-category">
+                        <h4>🛡️ 安全计划</h4>
+                        <ul class="recommendation-list">
+                            <li>制定心理健康安全计划，包括危机时的应对策略</li>
+                            <li>移除可能用于自我伤害的物品或手段</li>
+                            <li>建立支持网络，确保在困难时刻有人可以联系</li>
+                            <li>学习识别早期预警信号，及时寻求帮助</li>
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // 如果有特定高因子，添加针对性建议
+            if (highFactors.length > 0) {
+                recommendations += `
+                    <div class="recommendation-category">
+                        <h4>🎯 针对性建议</h4>
+                        <ul class="recommendation-list">
+                            <li>重点关注${highFactors.join('、')}方面的症状改善</li>
+                            <li>学习与这些症状相关的特定应对策略</li>
+                            <li>寻找专门处理这些问题的心理健康专家</li>
+                            <li>阅读相关自助书籍或参加针对性工作坊</li>
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('assessmentContent').innerHTML = `
+                <div class="assessment-level ${assessmentClass}">${assessmentLevel}</div>
+                <p>${assessmentText}</p>
+                ${recommendations}
+            `;
+        }
+        
         // 显示解读
         function showInterpretation(r) {
             let h = '<p><strong>评价标准：</strong></p><ul><li>总分超过160分，或阳性项目数超过43项，或任一因子均分超过2分，考虑筛查阳性</li><li>因子均分 &lt; 2：正常</li><li>因子均分 2-3：轻度</li><li>因子均分 3-4：中度</li><li>因子均分 ≥ 4：重度</li></ul><p><strong>您的测试结果：</strong></p>';
@@ -1096,7 +1560,27 @@
         function resetTest() {
             localStorage.removeItem('scl90_completed');
             localStorage.removeItem('scl90_results');
-            location.reload();
+            
+            // 清除所有已选择的答案
+            const allRadios = document.querySelectorAll('input[type="radio"]');
+            allRadios.forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // 滚动到页面顶部，显示第一题
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // 隐藏结果区域，显示测试区域
+            document.getElementById('testResults').style.display = 'none';
+            document.getElementById('pcTestForm').style.display = 'block';
+            
+            // 如果存在移动端测试容器，也隐藏结果显示测试
+            const mobileTestContainer = document.getElementById('mobileTestContainer');
+            const mobileResultsContainer = document.getElementById('mobileResultsContainer');
+            if (mobileTestContainer && mobileResultsContainer) {
+                mobileResultsContainer.style.display = 'none';
+                mobileTestContainer.style.display = 'block';
+            }
         }
     </script>
 </body>
