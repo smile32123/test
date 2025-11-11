@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恋爱占有欲深度分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600&display=swap');
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.4); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(233, 30, 99, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(233, 30, 99, 0); }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(180deg, #fffbf9 0%, #ffffff 100%);
+            color: #444; 
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box; /* V1.6: 确保 padding 不会撑开 body */
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 16px; 
+            box-shadow: 0 16px 40px rgba(133, 84, 84, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .view {
+            padding: 30px 35px; 
+            box-sizing: border-box;
+        }
+        
+        #quizView, #resultsView {
+            display: none; 
+        }
+
+        .welcome-icon {
+            text-align: center;
+            color: #f06292;
+            margin-bottom: 10px;
+        }
+        .welcome-icon svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        #welcomeView h1 {
+            font-family: 'Noto Serif SC', 'Georgia', serif;
+            color: #d15c5c; 
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        #welcomeView p {
+            font-size: 16px;
+            line-height: 1.7; 
+            text-align: center;
+            color: #665; 
+        }
+        .disclaimer {
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .start-btn, .restart-btn { 
+            display: block;
+            width: 80%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #f06292; 
+            border: none;
+            border-radius: 12px; 
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .start-btn:hover, .restart-btn:hover {
+            background-color: #e91e63;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+        }
+
+        .restart-btn {
+            background-color: #fff;
+            color: #e91e63;
+            border: 2px solid #e91e63;
+            width: 60%;
+        }
+        .restart-btn:hover {
+            background-color: #fffafb;
+        }
+
+        #progressContainer {
+            width: 100%;
+            background-color: #fdebee; 
+            border-radius: 5px;
+            height: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        #progressBar {
+            width: 0%;
+            height: 100%;
+            background-color: #f06292; 
+            border-radius: 5px;
+            transition: width 0.3s;
+            position: relative;
+        }
+        #progressBar::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            background: #e91e63;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .quiz-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            min-height: 30px; 
+        }
+        .prev-btn {
+            background: none;
+            border: 1px solid #f8bbd0;
+            color: #e91e63;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .prev-btn:hover {
+            background: #fff0f5;
+            transform: scale(1.05);
+        }
+        .prev-btn:disabled {
+            border-color: #eee;
+            color: #ccc;
+            cursor: not-allowed;
+            background: none;
+            transform: none;
+        }
+        
+        #questionText {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            min-height: 60px;
+            color: #333;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .option-btn {
+            padding: 14px;
+            font-size: 16px;
+            background-color: #fffafb; 
+            border: 1px solid #f8e8e8; 
+            border-radius: 12px; 
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease-out; 
+            color: #555;
+        }
+        .option-btn:hover {
+            background-color: #fff0f5; 
+            border-color: #f06292;
+            color: #e91e63;
+            transform: translateY(-2px); 
+        }
+        .option-btn:active {
+            transform: scale(0.98); 
+        }
+        
+        .option-btn.selected {
+            background-color: #fce4ec;
+            border-color: #e91e63;
+            color: #c2185b;
+            font-weight: bold;
+        }
+
+        #resultsView h1 {
+            text-align: center;
+            font-family: 'Noto Serif SC', 'Georgia', serif;
+            color: #d15c5c;
+            margin-bottom: 10px;
+        }
+
+        .core-trait-card {
+            background: linear-gradient(135deg, #fffafb 0%, #ffffff 100%);
+            border: 1px solid #fce4ec;
+            border-radius: 16px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(233, 30, 99, 0.05);
+        }
+        
+        #coreTraitTitle {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-align: center;
+            color: #e91e63; 
+            margin-bottom: 15px;
+            margin-top: 10px;
+        }
+        #coreTraitText {
+            font-size: 1em;
+            line-height: 1.7;
+            background: none; 
+            border: none; 
+            padding: 0; 
+            border-radius: 0;
+            margin-bottom: 10px;
+            color: #5d4037; 
+        }
+        
+        .report-module {
+            margin-bottom: 30px;
+        }
+
+        .module-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #4e3440; 
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            text-align: center; 
+            border-bottom: none; 
+        }
+        .module-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 2px;
+            background: #f06292;
+            margin: 10px auto 0;
+        }
+        
+        #scorePanel {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px;
+            background-color: #fff;
+            border: 1px solid #fce4ec;
+            border-radius: 12px;
+        }
+        .score-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .score-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #e91e63; 
+        }
+        
+        .analysis-item {
+            border: 1px solid #fce4ec;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(220, 200, 200, 0.1);
+        }
+        .analysis-header {
+            padding: 15px;
+            background-color: #fffafb;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .analysis-body {
+            padding: 15px 20px;
+            border-top: 1px solid #fce4ec;
+            line-height: 1.7;
+            background-color: #fff;
+            color: #5d4037;
+        }
+        .analysis-body strong {
+            color: #e91e63; 
+        }
+        
+        #actionPlan {
+            background-color: #fff0f5; 
+            border: 1px solid #f8bbd0;
+            border-radius: 12px;
+            padding: 25px;
+        }
+        #actionPlan h3 {
+            margin-top: 0;
+            color: #c2185b; 
+            font-size: 1.3em;
+        }
+        #actionPlan ul {
+            padding-left: 20px;
+            line-height: 1.8;
+            color: #5d4037;
+            list-style-type: none; 
+        }
+        #actionPlan ul li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+        #actionPlan ul li::before {
+            content: '♥'; 
+            position: absolute;
+            left: -22px;
+            top: 1px;
+            color: #e91e63;
+            font-size: 1.1em;
+        }
+        
+        /* --- V1.6: 移动端自适应 --- */
+        @media (max-width: 600px) {
+            body {
+                padding: 0; /* 手机端让容器贴边 */
+            }
+            .container {
+                border-radius: 0; /* 手机端不留圆角 */
+                box-shadow: none; /* 手机端不需要阴影 */
+                min-height: 100vh;
+            }
+            .view {
+                padding: 25px 20px; /* V1.6: 减小手机端边距 */
+            }
+            #welcomeView h1 {
+                font-size: 1.8em; /* V1.6: 缩小标题 */
+            }
+            #questionText {
+                font-size: 1.15em; /* V1.6: 缩小问题字体 */
+                min-height: 50px;
+            }
+            .option-btn {
+                padding: 12px; /* V1.6: 缩小选项内边距 */
+                font-size: 15px;
+            }
+            .core-trait-card {
+                padding: 15px; /* V1.6: 缩小卡片内边距 */
+            }
+            #coreTraitTitle {
+                font-size: 1.5em; /* V1.6: 缩小核心标题 */
+            }
+            .module-title {
+                font-size: 1.3em; /* V1.6: 缩小模块标题 */
+            }
+            .analysis-header {
+                padding: 12px 15px;
+            }
+            .analysis-body {
+                padding: 12px 15px;
+            }
+            #actionPlan {
+                padding: 20px;
+            }
+            .start-btn, .restart-btn {
+                width: 90%; /* V1.6: 按钮在手机上更宽 */
+            }
+            .restart-btn {
+                width: 80%;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <div id="welcomeView" class="view">
+            <div class="welcome-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+
+            <h1>恋爱占有欲</h1>
+            <h1>五维深度分析报告</h1>
+            <p>欢迎。本测试将通过 45 个专业问题，深入分析你（作为产品Owner）在亲密关系中的行为倾向。这不是一个简单的测试，而是一个严肃的自我洞察工具。</p>
+            <p>请凭第一直觉诚实作答，预计用时 10-15 分钟。</p>
+            
+            <button id="startBtn" class="start-btn">开始分析</button>
+
+            <p class="disclaimer">免责声明：本测试由 AI 辅助生成，仅供自我探索和娱乐参考，不构成任何专业的心理诊断或建议。请理性看待结果。</p>
+        </div>
+
+        <div id="quizView" class="view">
+            <div id="progressContainer">
+                <div id="progressBar"></div>
+            </div>
+            
+            <div class="quiz-nav">
+                <button id="prevBtn" class="prev-btn">&larr; 上一题</button>
+                <div id="questionMeta">第 <span id="currentQ">1</span> / 45 题</div>
+            </div>
+            
+            <h2 id="questionText">这里是问题文本...</h2>
+            
+            <div class="options-grid">
+                <button class="option-btn" data-value="5">经常如此</button>
+                <button class="option-btn" data-value="4">偶尔会</button>
+                <button class="option-btn" data-value="3">看情况</button>
+                <button class="option-btn" data-value="2">很少</button>
+                <button class="option-btn" data-value="1">从不</button>
+            </div>
+
+        </div>
+
+        <div id="resultsView" class="view">
+            <h1>你的五维深度分析报告</h1>
+
+            <div class="report-module core-trait-card">
+                <h2 id="coreTraitTitle" class="module-title">[核心特质标题]</h2>
+                <p id="coreTraitText">[核心特质分析文案...]</p>
+            </div>
+
+            <div class="report-module">
+                <h3 class="module-title">你的恋爱占有欲“五维雷达图”</h3>
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <div class="report-module">
+                <h3 class="module-title">你的五维得分 (0-100)</h3>
+                <div id="scorePanel">
+                    </div>
+            </div>
+
+            <div class="report-module">
+                <h3 class="module-title">五维逐条深度分析</h3>
+                <div id="analysisPanel">
+                    </div>
+            </div>
+
+            <div class="report-module">
+                <h3 class="module-title">你的专属行动建议</h3>
+                <div id="actionPlan">
+                    </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; border-top: 1px solid #fce4ec; padding-top: 20px;">
+                <button id="restartBtn" class="restart-btn">重新测试</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        // --- 1. 数据库 (DB): V1.6 (已修复*号) ---
+        const questionBank = [
+            // 维度 1: 焦虑与安全感
+            { text: "伴侣回消息一慢，我就会胡思乱想。", dim: 1, rev: false },
+            { text: "我需要伴侣经常说爱我来让我安心。", dim: 1, rev: false },
+            { text: "我总担心自己做错事伴侣会离开。", dim: 1, rev: false },
+            { text: "一吵架，我就会担心“是不是要分手了？”", dim: 1, rev: false },
+            { text: "伴侣自己去社交，我会感到不安。", dim: 1, rev: false },
+            { text: "我的自我价值感很依赖伴侣的肯定。", dim: 1, rev: false },
+            { text: "必须每天高频联系，我才踏实。", dim: 1, rev: false },
+            { text: "我爱和伴侣的前任/异性朋友比较。", dim: 1, rev: false },
+            { text: "伴侣稍有不开心，我就会很紧张。", dim: 1, rev: false },
+            // 维度 2: 控制与干涉
+            { text: "我会要求伴侣远离某些朋友。", dim: 2, rev: false },
+            { text: "我会干涉伴侣的穿着打扮。", dim: 2, rev: false },
+            { text: "伴侣的重大决策（如换工作），我必须有决定权。", dim: 2, rev: false },
+            { text: "我会试图强迫伴侣改变生活习惯。", dim: 2, rev: false },
+            { text: "我会为我们的关系制定“规则”让对方遵守。", dim: 2, rev: false },
+            { text: "我会要求伴侣减少ta的个人爱好。", dim: 2, rev: false },
+            { text: "我不希望伴侣（没有我）长时间旅行。", dim: 2, rev: false },
+            { text: "我会试图干涉伴侣的消费习惯（怎么花钱）。", dim: 2, rev: false },
+            { text: "伴侣的社交圈必须对我完全透明。", dim: 2, rev: false },
+            // 维度 3: 嫉妒与猜疑
+            { text: "伴侣和异性聊天，我很容易吃醋。", dim: 3, rev: false },
+            { text: "我很在意异性给伴侣的社媒点赞/评论。", dim: 3, rev: false },
+            { text: "伴侣提到前任，我会耿耿于怀。", dim: 3, rev: false },
+            { text: "我会暗中评估伴侣身边的“潜在威胁”。", dim: 3, rev: false },
+            { text: "伴侣回家晚了，我的第一反应是怀疑。", dim: 3, rev: false },
+            { text: "我会用“假设问题”来试探伴侣的忠诚。", dim: 3, rev: false },
+            { text: "伴侣手机一响，我内心会立刻假设是“某个威胁”发来的。", dim: 3, rev: false }, // V1.6 修复
+            { text: "伴侣隐瞒小事，我就会联想到出轨。", dim: 3, rev: false },
+            { text: "我认为伴侣“欣赏”其他异性就是不忠。", dim: 3, rev: false },
+            // 维度 4: 边界与侵犯
+            { text: "我（不管出于什么原因）都会采取行动去查伴侣的手机。", dim: 4, rev: false }, // V1.6 修复
+            { text: "我认为爱人就该共享所有密码。", dim: 4, rev: false },
+            { text: "我想用“位置共享”来掌握伴侣行踪。", dim: 4, rev: false },
+            { text: "我会翻看伴侣的钱包/快递/浏览记录。", dim: 4, rev: false },
+            { text: "伴侣回避接电话，我必须当场知道对方是谁。", dim: 4, rev: false }, // V1.6 修复
+            { text: "伴侣的收入和支出必须对我公开。", dim: 4, rev: false },
+            { text: "伴侣发社媒（私密内容）需要我同意。", dim: 4, rev: false },
+            { text: "我会搞“突击检查”来验证伴侣的诚实。", dim: 4, rev: false },
+            { text: "我认为我有权知道伴侣和家人的私密聊天内容。", dim: 4, rev: false },
+            // 维度 5: 独立与疏离
+            { text: "恋爱中我仍然极度需要个人空间。", dim: 5, rev: true },
+            { text: "我觉得时时刻刻“报备行踪”很烦人。", dim: 5, rev: true },
+            { text: "伴侣太粘人，我会想逃离。", dim: 5, rev: true },
+            { text: "比起腻在一起，我更喜欢独处/找朋友。", dim: 5, rev: true },
+            { text: "我不喜欢讨论“未来承诺”，压力很大。", dim: 5, rev: true },
+            { text: "伴侣情感需求太强，我会感到厌烦。", dim: 5, rev: true },
+            { text: "我认为情侣也必须是“独立个体”。", dim: 5, rev: true },
+            { text: "冲突时，我的第一反应是“冷战”或消失。", dim: 5, rev: true },
+            { text: "保留个人隐私对我至关重要。", dim: 5, rev: true }
+        ];
+
+        // --- 2. 数据库 (DB): 报告文案库 (M3, M4, M5) ---
+        // (保持不变)
+        const dimensionNames = { 1: "焦虑与安全感", 2: "控制与干涉", 3: "嫉妒与猜疑", 4: "边界与侵犯", 5: "独立与疏离" };
+        const coreTraitContent = { 1: { title: "高焦虑的“雷达”", text: "在你的恋爱五维模型中，“焦虑与安全感” 是你最突出的特质。这意味着你像一个高精度的‘雷达’，对关系中的风吹草动极其敏感。你渴望100%的安全感，但也常常因此陷入“内耗”和不安。这是你所有特质中最需要被看见和理解的部分。" }, 2: { title: "高控制的“守护者”", text: "在你的恋爱五维模型中，“控制与干涉” 是你最突出的特质。这意味着你倾向于通过建立‘规则’和‘秩序’来保护你的关系。你的爱是强烈的、有规划的，但也可能让伴侣感到‘窒息’。这是你所有特质中最需要被察觉和调整的部分。" }, 3: { title: "高嫉妒的“猎鹰”",  text: "在你的恋爱五维模型中，“嫉妒与猜疑” 是你最突出的特质。这意味着你拥有“猎鹰”般敏锐的视觉，能第一时间察觉到关系中的“潜在威胁”。你的专注度极高，但也容易因为“假想敌”而感到疲惫。" }, 4: { title: "高侵犯的“领地巡视者”", text: "在你的恋爱五维模型中，“边界与侵犯” 是你最突出的特质。这意味着你认为“爱=透明”，你坚信伴侣间不应有秘密。你倾向于通过“巡视领地”（如查手机）来获取安全感，但这可能会侵蚀信任。" }, 5: { title: "高独立的“自由风”", text: "在你的恋爱五维模型中，“独立与疏离” 是你最突出的特质。这意味着你极度需要个人空间，你认为‘爱是联盟而非合并’。你的独立让关系没有压力，但也可能让伴侣感到‘疏离’。这是你所有特质中最核心的标签。" } };
+        const analysisContent = { 1: { high: "你的“焦虑”得分<strong>非常高</strong>。这意味着你对关系的“信号”极其敏感，像一个24小时运转的雷达。<br><strong>优势：</strong>你拥有极高的共情力，能敏锐察觉伴侣的需求。<br><strong>挑战：</strong>你的“雷达”过于灵敏，会把“友军”也当成“威胁”，导致你频繁陷入“内耗”，并极度需要对方的“口头承诺”来获取安全感。", med: "你的“焦虑”得分处于<strong>中等范围</strong>。<br>你有时候会感到不安，尤其是在关系不稳定时，但你通常能自我调节。你关心伴侣，但不会到“神经质”的程度。这是一个很常见的状态，试着在不安时主动沟通，而不是“内耗”。", low: "你的“焦虑”得分<strong>非常低</strong>。<br>你拥有强大的“情绪内核”，很少为关系中的小事而胡思乱想。你给予伴侣极大的信任，不会轻易感到威胁。<br><strong>提醒：</strong>请确保这种“低焦虑”不是源于“钝感”，你仍需留意伴侣真实的情绪需求。" }, 2: { high: "你的“控制”得分<strong>非常高</strong>。<br>你倾向于通过“干涉”和“制定规则”来主导关系，这可能源于你对“失控”的恐惧。<br><strong>优势：</strong>你的关系很有“规划性”，你愿意为关系“负责”。<br><strong>挑战：</strong>你的伴侣可能会感到“窒息”和“不被尊重”。你需要学会区分“关心”与“越界”，把“命令”换成“商议”。", med: "你的“控制”得分处于<strong>中等范围</strong>。<br>在一些你“特别在乎”的事情上（比如健康、金钱），你会表现出干涉倾向。但在大多数时候，你愿意给对方空间。你需要找到那个“平衡点”，确保你的“关心”不会变成“管束”。", low: "你的“控制”得分<strong>非常低</strong>。<br>你完全不是一个“控制狂”。你倾向于给伴侣绝对的自由，尊重对方的所有决定、社交和习惯。你的伴侣和你在一起会感到非常“轻松”和“被信任”。<br><strong>提醒：</strong>请确保这种“不干涉”不是源于“懒得管”或“不在乎”。" }, 3: { high: "你的“嫉妒”得分<strong>非常高</strong>。<br>你对“潜在威胁”的雷达开到了最大。伴侣与异性的任何风吹草动都可能引发你的警报。<br><strong>优势：</strong>你对这段关系非常“专注”和“在乎”。<br><strong>挑战：</strong>这种高度的嫉妒会让你和你伴侣都精疲力竭。你容易“捕风捉影”，把“正常社交”解读为“背叛的前兆”。", med: "你的“嫉妒”得分处于<strong>中等范围</strong>。<br>“吃醋”是人之常情。你会在某些特定情景下（比如伴侣和前任联系）感到明显的不快，但你通常能保持理性，不会因此“大作文章”。你明白界限，但也需要对方的“安抚”。", low: "你的“嫉妒”得分<strong>非常低</strong>。<br>你对伴侣有着极高的信任，或者你对自己有着极高的自信。你很少会“吃醋”，你认为伴侣有自己的社交自由。这是一种非常成熟和轻松的关系状态。", }, 4: { high: "你的“边界”得分<strong>非常高</strong>。<br>你坚信“爱人=透明”，隐私在亲密关系中没有存在的必要。你认为你有权“查手机”、“共享密码”或“知道一切”。<br><strong>优势：</strong>你追求的是一种“绝对坦诚”的关系。<br><strong>挑战：</strong>这在法律和情感上都是高风险的。这种“侵犯”会彻底摧毁信任，让伴侣感到自己像一个“犯人”。", med: "你的“边界”得分处于<strong>中等范围</strong>。<br>你对“隐私”的界定比较模糊。你也许不会“主动”去查手机，但如果“有机会”或者“吵架上头”，你可能会做出越界行为。你需要在“好奇心”和“尊重”之间划一条更清晰的红线。", low: "你的“边界”得分<strong>非常低</strong>。<G>你极度尊重伴侣的个人隐私，也坚守自己的隐私。你认为“查手机”是绝对不可接受的。你明白“信任”是关系的基石，而“隐私”是信任的一部分。你是一个界限感清晰的伴侣。", }, '5DEC': { high: "你的“独立”得分<strong>非常高</strong> (即低占有欲)。<br>你是一个“高独立性”的伴侣，极度需要个人空间，你认为“爱是联盟而非合并”。<br><strong>优势：</strong>你从不“粘人”，你的伴侣会感到非常自由和舒适。<br><strong>挑战：</strong>有时，你的“独立”可能会被误读为“疏离”或“不在乎”。请记得偶尔主动“靠近”，让伴侣感受到“被需要”。", med: "你的“独立”得分处于<strong>中等范围</strong>。<br>你很好地平衡了“亲密”与“独处”。你既享受二人世界，也需要自己的个人空间来“充电”。你既不是“粘人精”，也不是“独行侠”。这通常是一个健康且舒适的状态。", low: "你的“独立”得分<strong>非常低</strong> (即高依附性)。<br>你对“个人空间”的需求很低。你更喜欢“融合”而非“联盟”。<br><strong>优势：</strong>你能给伴侣提供极高的“亲密感”和“陪伴”。<br><strong>挑战：</strong>你可能会过于“粘人”，让伴侣感到“窒息”。你需要培养自己的独立爱好，学会“一个人也能很开心”。" } };
+        const actionPlanContent = { 1: "<h3>💡 给“高焦虑雷达”的3个行动建议</h3><p>你的核心挑战是“管理内耗”。与其向外索取，不如向内建设。</p><ul><li><strong>建立“情绪刹车”：</strong> 当你下次因“没回消息”而焦虑时，<strong>不要</strong>立刻发信息质问。停下来，去做一件别的事（比如听完一首歌），给情绪一个“刹车”时间。</li><li><strong>练习“事实归因”：</strong> 问自己：“他没回消息，除了‘他不爱我了’之外，还有没有其他<strong>10种</strong>可能？”（例如：他在开会、手机没电、在开车...）</li><li><strong>表达“感受”而非“指控”：</strong> 把 “你为什么总是不回我消息？！”（指控）换成 “你刚才没回我，我有点不安，现在你方便聊聊吗？”（表达感受）。</li></ul>", 2: "<h3>💡 给“高控制守护者”的3个行动建议</h3><p>你的核心挑战是“松开紧握的手”。你必须明白“关心”与“越界”的区别。</p><ul><li><strong>区分“领域”：</strong> 把事情分为“我的领域”（我的情绪、我的工作）和“对方的领域”（他的穿着、他的朋友、他的决定）。<strong>你永远不能踏入“对方的领域”</strong>。</li><li><strong>使用“建议”而非“命令”：</strong> 把 “你必须在11点前回家！”（命令）换成 “我希望你11点前回家，因为我担心你的安全，可以吗？”（建议）。</li><li><strong>寻找“替代安全感”：</strong> 你的控制欲源于不安。试着把这种安全感从“控制对方”转移到“提升自己”（例如：发展自己的事业、健身），你会更强大。</li></ul>", 3: "<h3>💡 给“高嫉妒猎鹰”的3个行动建议</h3><p>你的核心挑战是“区分‘威胁’与‘事实’”。</p><ul><li><strong>停止“调查”：</strong> 你越是去“查”伴侣的社交媒体或“前任”资料，你的“嫉妒”就越会被“喂养”。你必须强行切断这种“调查”行为。</li><li><strong>建立“自信锚点”：</strong> 把注意力从“他/她为什么会喜欢别人？”转移到“我有什么值得被爱的优点？”。写下3个你自己的优点，在嫉妒时拿出来看。</li><li><strong>增加“共同社交”：</strong> 与其禁止伴侣社交，不如你主动加入。认识他/她的朋友，把“未知的威胁”变成“已知的朋友”。</li></ul>", 4: "<h3>💡 给“高边界侵犯者”的3个行动建议</h3><p>你的核心挑战是“重建信任，从尊重隐私开始”。</p><ul><li><strong>物理隔离：</strong> 主动告诉对方“我不会再看你的手机了，我选择信任你”。如果做不到，请把对方的手机从你眼前拿开，直到你对“看手机”这件事“脱敏”。</li><li><strong>直面恐惧：</strong> 你查手机，是因为你害怕“不知道”的事情。你必须接受一个事实：你永远无法100%“知道”一切。安全感来自“信任”，而不是“监控”。</li><li><strong>设置“信息红绿灯”：</strong> 在你想知道某件事时，先问：“这件事是我的“绿灯”（我该知道的）还是“红灯”（对方的隐私）？” 练习只在“绿灯”区行驶。</li></ul>", 5: "<h3>💡 给“高独立自由风”的3个行动建议</h3><p>你的核心挑战是“在保持自我的同时，学着主动‘靠近’”</p><ul><li><strong>主动分享“小事”：</strong> 你不需要分享你最深的秘密，但你可以主动分享“今天午饭吃了什么”或“看到了一个有趣的云”。这种“无用”的分享是亲密感的来源。</li><li><strong>创造“专属时间”：</strong> 即使你很忙，也要在日程表里划出一个“伴侣专属时间”。在这段时间里，你的注意力100%在他/她身上，而不是“虽然在一起，但各自玩手机”。</li><li><strong>学习“肯定式”回应：</strong> 当伴侣向你表达情感需求时，即使你感到“厌烦”，也不要“推开”。试着回应：“我听到你了，你现在感觉...” 先肯定对方的情绪，这比什么都重要。</li></ul>" };
+
+
+        // --- 3. 状态变量 (State) --- (V1.4 逻辑)
+        let shuffledQuestions = [];
+        let currentQuestionIndex = 0;
+        let userRawScores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }; 
+        let finalStandardScores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        let userAnswers = new Array(45).fill(null); 
+
+        // --- 4. DOM 元素引用 ---
+        const views = {
+            welcome: document.getElementById('welcomeView'),
+            quiz: document.getElementById('quizView'),
+            results: document.getElementById('resultsView')
+        };
+        const startBtn = document.getElementById('startBtn');
+        const progressBar = document.getElementById('progressBar');
+        const currentQ = document.getElementById('currentQ');
+        const questionText = document.getElementById('questionText');
+        const optionBtns = document.querySelectorAll('.option-btn');
+        const prevBtn = document.getElementById('prevBtn'); 
+        const restartBtn = document.getElementById('restartBtn'); 
+
+        // 结果页元素
+        const coreTraitTitle = document.getElementById('coreTraitTitle');
+        const coreTraitText = document.getElementById('coreTraitText');
+        const scorePanel = document.getElementById('scorePanel');
+        const analysisPanel = document.getElementById('analysisPanel');
+        const actionPlan = document.getElementById('actionPlan');
+        const chartCtx = document.getElementById('radarChart').getContext('2d');
+        let radarChartInstance = null; 
+
+        // --- 5. 核心逻辑 (Logic) ---
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            userRawScores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            finalStandardScores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            userAnswers = new Array(45).fill(null); 
+            if (radarChartInstance) {
+                radarChartInstance.destroy(); 
+                radarChartInstance = null;
+            }
+        }
+        
+        function restartQuiz() {
+            resetQuiz();
+            views.results.style.display = 'none';
+            views.welcome.style.display = 'block';
+        }
+
+        function startQuiz() {
+            resetQuiz(); 
+            shuffledQuestions = shuffleArray([...questionBank]); 
+            views.welcome.style.display = 'none';
+            views.quiz.style.display = 'block';
+            displayQuestion();
+        }
+
+        function goToPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+            }
+        }
+        
+        function handleOptionClick(event) {
+            const selectedValue = parseInt(event.target.dataset.value);
+            
+            const btn = event.target;
+            btn.classList.add('selected'); 
+            
+            userAnswers[currentQuestionIndex] = selectedValue; 
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < 45) {
+                    displayQuestion();
+                } else {
+                    calculateResults();
+                }
+            }, 150); 
+        }
+
+        function displayQuestion() {
+            const q = shuffledQuestions[currentQuestionIndex];
+            questionText.textContent = q.text;
+            currentQ.textContent = currentQuestionIndex + 1;
+            progressBar.style.width = `${((currentQuestionIndex + 1) / 45) * 100}%`;
+            
+            prevBtn.disabled = (currentQuestionIndex === 0);
+            
+            optionBtns.forEach(btn => btn.classList.remove('selected'));
+
+            const existingAnswer = userAnswers[currentQuestionIndex];
+            if (existingAnswer) {
+                const selectedBtn = document.querySelector(`.option-btn[data-value="${existingAnswer}"]`);
+                if (selectedBtn) {
+                    selectedBtn.classList.add('selected');
+                }
+            }
+        }
+        
+        function calculateResults() {
+            userRawScores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+            for (let i = 0; i < 45; i++) {
+                const q = shuffledQuestions[i];
+                const selectedValue = userAnswers[i];
+                
+                if (selectedValue) { 
+                    const score = (q.rev) ? (6 - selectedValue) : selectedValue;
+                    userRawScores[q.dim] += score;
+                }
+            }
+
+            let maxScore = -1;
+            let maxDim = 1;
+            const radarScores = [];
+
+            for (let i = 1; i <= 5; i++) {
+                const rawScore = userRawScores[i]; 
+                const standardScore = Math.round(((rawScore - 9) / (45 - 9)) * 100);
+                finalStandardScores[i] = standardScore;
+                radarScores.push(standardScore);
+
+                if (standardScore > maxScore) {
+                    maxScore = standardScore;
+                    maxDim = i;
+                }
+            }
+            
+            views.quiz.style.display = 'none';
+            views.results.style.display = 'block';
+            
+            renderReport(maxDim, radarScores);
+        }
+
+        // V1.6: 渲染报告 (增加移动端判断)
+        function renderReport(maxDim, radarScores) {
+            coreTraitTitle.textContent = `${coreTraitContent[maxDim].title} (${finalStandardScores[maxDim]}分)`;
+            coreTraitText.textContent = coreTraitContent[maxDim].text;
+            
+            // V1.6: 移动端自适应图表
+            const isMobile = window.innerWidth <= 600;
+            const chartLabelSize = isMobile ? 10 : 14;
+            const chartTickSize = isMobile ? 9 : 12;
+
+            const chartConfig = {
+                type: 'radar',
+                data: {
+                    labels: [
+                        dimensionNames[1],
+                        dimensionNames[2],
+                        dimensionNames[3],
+                        dimensionNames[4],
+                        dimensionNames[5]
+                    ],
+                    datasets: [{
+                        label: '你的得分',
+                        data: radarScores,
+                        backgroundColor: 'rgba(233, 30, 99, 0.2)', 
+                        borderColor: '#e91e63', 
+                        borderWidth: 2,
+                        pointBackgroundColor: '#c2185b' 
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            angleLines: { color: '#fce4ec' }, 
+                            grid: { color: '#fce4ec' }, 
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            pointLabels: {
+                                font: { size: chartLabelSize, family: 'sans-serif' }, // V1.6: 动态字体
+                                color: '#5d4037' 
+                            },
+                            ticks: {
+                                backdropColor: '#fffafb',
+                                backdropPadding: 4,
+                                color: '#999',
+                                font: { size: chartTickSize } // V1.6: 动态字体
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            };
+
+            if (radarChartInstance) {
+                radarChartInstance.destroy();
+            }
+            radarChartInstance = new Chart(chartCtx, chartConfig);
+
+            scorePanel.innerHTML = '';
+            analysisPanel.innerHTML = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                const score = finalStandardScores[i];
+                const name = dimensionNames[i];
+                
+                scorePanel.innerHTML += `
+                    <div class="score-item">
+                        <span class="score-label">${name}</span>
+                        <span class="score-value">${score} / 100</span>
+                    </div>
+                `;
+                
+                let analysisText = '';
+                const key = (i === 5) ? '5DEC' : i;
+                
+                if (score > 70) {
+                    analysisText = analysisContent[key].high;
+                } else if (score > 40) {
+                    analysisText = analysisContent[key].med;
+                } else {
+                    analysisText = analysisContent[key].low;
+                }
+                
+                analysisPanel.innerHTML += `
+                    <div class="analysis-item">
+                        <div class="analysis-header">
+                            <span>${i}. ${name}</span>
+                            <span>${score} 分</span>
+                        </div>
+                        <div class="analysis-body">
+                            ${analysisText}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            actionPlan.innerHTML = actionPlanContent[maxDim];
+        }
+
+
+        // --- 6. 事件监听器 ---
+        startBtn.addEventListener('click', startQuiz);
+        restartBtn.addEventListener('click', restartQuiz); 
+        prevBtn.addEventListener('click', goToPreviousQuestion); 
+        
+        optionBtns.forEach(button => {
+            button.addEventListener('click', handleOptionClick); 
+        });
+
+    });
+    </script>
+</body>
+</html>
